@@ -62,9 +62,13 @@ set(ES_HEADERS
     # Database
     ${CMAKE_CURRENT_SOURCE_DIR}/src/db/DatabaseManager.h
 
+    # Game Scanner
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/GameScanner.h
+
     # Plugins
     ${CMAKE_CURRENT_SOURCE_DIR}/src/plugins/IGameSourcePlugin.h
     ${CMAKE_CURRENT_SOURCE_DIR}/src/plugins/PluginManager.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/plugins/LocalFilesystemPlugin.h
 
     # Launchers
     ${CMAKE_CURRENT_SOURCE_DIR}/src/launchers/IGameLauncher.h
@@ -91,8 +95,12 @@ set(ES_SOURCES
     # Database
     ${CMAKE_CURRENT_SOURCE_DIR}/src/db/DatabaseManager.cpp
 
+    # Game Scanner
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/GameScanner.cpp
+
     # Plugins
     ${CMAKE_CURRENT_SOURCE_DIR}/src/plugins/PluginManager.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/plugins/LocalFilesystemPlugin.cpp
 
     # Launchers
     ${CMAKE_CURRENT_SOURCE_DIR}/src/launchers/GameLauncherFactory.cpp

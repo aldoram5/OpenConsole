@@ -1,4 +1,5 @@
 #include "plugins/PluginManager.h"
+#include "plugins/LocalFilesystemPlugin.h"
 #include "Log.h"
 
 namespace OpenConsole
@@ -229,12 +230,20 @@ std::vector<GameMetadata> PluginManager::refreshGamesFromPlugin(const std::strin
 
 void PluginManager::registerBuiltInPlugins()
 {
-	// Built-in plugins will be registered here
-	// For now, this is a placeholder for future LocalPlugin and ItchPlugin
 	LOG(LogInfo) << "Registering built-in plugins...";
 
-	// TODO: Register LocalFilesystemPlugin
-	// TODO: Register ItchIoPlugin
+	// Register LocalFilesystemPlugin
+	auto localPlugin = std::make_shared<LocalFilesystemPlugin>();
+	if (registerPlugin(localPlugin))
+	{
+		LOG(LogInfo) << "Registered LocalFilesystemPlugin";
+	}
+	else
+	{
+		LOG(LogError) << "Failed to register LocalFilesystemPlugin";
+	}
+
+	// TODO: Register ItchIoPlugin when implemented
 }
 
 } // namespace OpenConsole
