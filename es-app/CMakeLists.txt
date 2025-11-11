@@ -58,6 +58,20 @@ set(ES_HEADERS
     # Animations
     ${CMAKE_CURRENT_SOURCE_DIR}/src/animations/LaunchAnimation.h
     ${CMAKE_CURRENT_SOURCE_DIR}/src/animations/MoveCameraAnimation.h
+
+    # Database
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/db/DatabaseManager.h
+
+    # Plugins
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/plugins/IGameSourcePlugin.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/plugins/PluginManager.h
+
+    # Launchers
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/launchers/IGameLauncher.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/launchers/GameLauncherFactory.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/launchers/AppImageLauncher.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/launchers/RenpyLauncher.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/launchers/DebLauncher.h
 )
 
 set(ES_SOURCES
@@ -73,6 +87,18 @@ set(ES_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/src/FileFilterIndex.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/SystemScreenSaver.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/CollectionSystemManager.cpp
+
+    # Database
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/db/DatabaseManager.cpp
+
+    # Plugins
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/plugins/PluginManager.cpp
+
+    # Launchers
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/launchers/GameLauncherFactory.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/launchers/AppImageLauncher.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/launchers/RenpyLauncher.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/launchers/DebLauncher.cpp
 
     # GuiComponents
     ${CMAKE_CURRENT_SOURCE_DIR}/src/components/AsyncReqComponent.cpp
