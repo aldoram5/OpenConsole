@@ -1,4 +1,12 @@
-EmulationStation
+# OpenConsole
+
+An open-source gaming console OS for modern indie games.
+
+**Forked from:** [EmulationStation](https://github.com/RetroPie/EmulationStation)
+
+The main goal for this is to offer a way for those who want it, a Gaming Console for modern games.
+
+
 ================
 
 This is a fork of EmulationStation for RetroPie.
