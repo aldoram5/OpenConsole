@@ -28,6 +28,7 @@ private:
 	void openScreensaverOptions();
 	void openSoundSettings();
 	void openUISettings();
+	void openOpenConsoleSettings();
 
 	MenuComponent mMenu;
 	TextComponent mVersion;
