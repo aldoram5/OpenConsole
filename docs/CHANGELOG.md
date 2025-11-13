@@ -4,11 +4,6 @@ All notable changes to OpenConsole (fork-specific features) are documented in th
 
 ## [Unreleased]
 
-### Phase 3 - UI Components (In Progress)
-- Virtual keyboard with controller navigation
-- Game list UI integration with database
-- Settings menus for configuration
-
 ### Phase 4 - itch.io Integration (Planned)
 - itch.io plugin with OAuth authentication
 - Game library browsing and management
@@ -20,6 +15,78 @@ All notable changes to OpenConsole (fork-specific features) are documented in th
 - Boot configuration for Raspberry Pi
 - Pi OS image build scripts
 - Controller configuration utilities
+
+## [0.3.0] - 2025-11-13
+
+### Phase 3: UI Components and Database Integration
+
+#### Added
+- **GuiVirtualKeyboard**: On-screen keyboard for controller-based text input
+  - QWERTY layout with full alphanumeric support
+  - Shift support for uppercase letters and special characters
+  - D-pad navigation optimized for living room gaming
+  - Controller button mappings:
+    - A (confirm): Select character
+    - B (back): Backspace/delete
+    - X: Insert space
+    - Y: Toggle shift
+    - Start: Accept and submit text
+  - Callback system for text completion events
+  - Multi-line text input support
+  - Configurable initial text and accept button labels
+
+- **GuiOpenConsoleSettings**: Comprehensive settings and configuration menu
+  - **Database Section**:
+    - Display database file path
+    - View database statistics (game counts by type and source)
+  - **Plugin Section**:
+    - Show installed plugin count
+    - Toggle recursive directory scanning
+    - Configure maximum scan depth
+    - Add/remove scan paths with virtual keyboard integration
+  - **Scanning Section**:
+    - Manual "Scan for Games Now" button
+    - Toggle auto-scan on startup
+    - Progress feedback during scanning operations
+  - **Maintenance Section**:
+    - Refresh database (rescan all sources)
+    - Clear database (with confirmation dialog)
+  - Integration with GameScanner for all scanning operations
+  - Progress callbacks for real-time UI updates
+
+- **OpenConsoleSystem**: Database-to-GameList bridge
+  - Integrates GameMetadata from database with EmulationStation's FileData system
+  - Converts database entries to FileData objects for display in game lists
+  - System initialization and cleanup methods (init/deinit)
+  - Game list refresh capability
+  - Handles missing game files gracefully (logs warning, continues)
+  - Stores database ID in FileData metadata for easy lookups
+  - Creates virtual "OpenConsole" system for database-driven games
+
+#### Integration
+- Added "OPENCONSOLE SETTINGS" menu entry to main GuiMenu
+  - Positioned at top of menu for easy access
+  - Green color highlight (0x00FF00FF) for visibility
+  - Opens GuiOpenConsoleSettings on selection
+- Updated es-core/CMakeLists.txt with GuiVirtualKeyboard sources
+- Updated es-app/CMakeLists.txt with OpenConsoleSystem and GuiOpenConsoleSettings sources
+
+#### Technical Details
+- Virtual keyboard uses ComponentGrid for structured layout
+- Settings menu inherits from GuiSettings for consistent UI patterns
+- OpenConsoleSystem acts as adapter between database layer and view layer
+- All UI components follow EmulationStation's theme system conventions
+- Controller-first design throughout (no mouse/keyboard required)
+
+#### Files Added
+- `es-core/src/guis/GuiVirtualKeyboard.h/cpp`
+- `es-app/src/OpenConsoleSystem.h/cpp`
+- `es-app/src/guis/GuiOpenConsoleSettings.h/cpp`
+
+#### Files Modified
+- `es-app/src/guis/GuiMenu.h/cpp` (added OpenConsole settings entry)
+- `es-core/CMakeLists.txt` (added GuiVirtualKeyboard)
+- `es-app/CMakeLists.txt` (added OpenConsoleSystem and GuiOpenConsoleSettings)
 
 ## [0.2.0] - 2025-11-11
 
@@ -168,7 +235,7 @@ OpenConsole uses semantic versioning: `MAJOR.MINOR.PATCH`
 - **MINOR**: New features, phases completed
 - **PATCH**: Bug fixes, minor improvements
 
-Current phase: **Phase 2 Complete** (Local Game Support)
+Current phase: **Phase 3 Complete** (UI Components and Database Integration)
 
 ---
 

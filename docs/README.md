@@ -14,6 +14,7 @@ Welcome to the OpenConsole documentation! This guide will help you understand th
 - [Database Layer](architecture/DATABASE.md)
 - [Plugin System](architecture/PLUGINS.md)
 - [Game Launcher System](architecture/LAUNCHERS.md)
+- [UI Components](guides/UI_COMPONENTS.md)
 
 ### API Reference
 - [Database API](api/DATABASE_API.md)
@@ -23,6 +24,7 @@ Welcome to the OpenConsole documentation! This guide will help you understand th
 ### Development Guides
 - [Creating a Plugin](guides/CREATING_PLUGINS.md)
 - [Adding a Game Launcher](guides/ADDING_LAUNCHERS.md)
+- [UI Components Guide](guides/UI_COMPONENTS.md)
 - [Contributing Guidelines](development/CONTRIBUTING.md)
 
 ### Reference
@@ -66,10 +68,12 @@ OpenConsole has added the following major features on top of EmulationStation:
 - Cover art discovery
 - Game name extraction and sanitization
 
-### Phase 3: UI Components (In Progress)
-- Virtual keyboard with controller navigation
-- Game list UI integration
-- Settings menus
+### Phase 3: UI Components (Complete)
+- Virtual keyboard with controller navigation (GuiVirtualKeyboard)
+- OpenConsole settings menu (GuiOpenConsoleSettings)
+- Database integration with game lists (OpenConsoleSystem)
+- Main menu integration
+- Controller-first UI design
 
 ### Phase 4: itch.io Integration (Planned)
 - itch.io plugin with OAuth authentication
@@ -91,10 +95,11 @@ OpenConsole has added the following major features on top of EmulationStation:
 
 | Document | Status | Last Updated |
 |----------|--------|--------------|
-| Architecture Overview | ✅ Complete | 2025-11-11 |
+| Architecture Overview | ✅ Complete | 2025-11-13 |
 | Database Layer | ✅ Complete | 2025-11-11 |
 | Plugin System | ✅ Complete | 2025-11-11 |
 | Launcher System | ✅ Complete | 2025-11-11 |
+| UI Components Guide | ✅ Complete | 2025-11-13 |
 | Development Guide | ✅ Complete | 2025-11-11 |
 | API Reference | ✅ Complete | 2025-11-11 |
 

@@ -169,6 +169,27 @@ Example theme snippet:
 
 ## OpenConsole Extensions
 
+### UI Components
+
+```
+GuiVirtualKeyboard (GuiComponent)
+└── On-screen keyboard with controller navigation
+
+GuiOpenConsoleSettings (GuiSettings)
+└── OpenConsole configuration menu
+
+OpenConsoleSystem (singleton)
+└── Database-to-FileData bridge
+```
+
+**Design**: Component pattern with controller-first UX
+**Purpose**: User interface for OpenConsole features
+
+Key UI Components:
+- **GuiVirtualKeyboard**: QWERTY keyboard for text input without physical keyboard
+- **GuiOpenConsoleSettings**: Central hub for database, plugin, and scanning configuration
+- **OpenConsoleSystem**: Integrates database games into EmulationStation's view system
+
 ### Plugin Architecture
 
 ```
@@ -257,6 +278,8 @@ DatabaseManager::updatePlayStats()
 ```
 User Action (Scan Games)
     ↓
+GuiOpenConsoleSettings::scanGames()
+    ↓
 GameScanner::scanAllSources()
     ↓
 PluginManager::getAuthenticatedPlugins()
@@ -271,7 +294,59 @@ Return GameMetadata[]
     ↓
 DatabaseManager::insertGame()
     ↓
+Progress callback to UI
+    ↓
+OpenConsoleSystem::refreshGameList()
+    ↓
 UI Updates with new games
+```
+
+### Virtual Keyboard Flow
+
+```
+User Action (Add Scan Path)
+    ↓
+GuiOpenConsoleSettings::addScanPath()
+    ↓
+GuiVirtualKeyboard created with callback
+    ↓
+User navigates with D-pad (←↑→↓)
+    ↓
+User selects characters (A button)
+    ↓
+User completes text (Start button)
+    ↓
+Callback invoked with text string
+    ↓
+GuiOpenConsoleSettings receives path
+    ↓
+Path added to configuration
+    ↓
+Virtual keyboard closes
+```
+
+### Database Integration Flow
+
+```
+Application Startup
+    ↓
+OpenConsoleSystem::init()
+    ↓
+DatabaseManager::init()
+    ↓
+PluginManager::init()
+    ↓
+OpenConsoleSystem::createSystem()
+    ↓
+DatabaseManager::getAllGames()
+    ↓
+Convert GameMetadata → FileData
+    ↓
+Create SystemData for "OpenConsole"
+    ↓
+Add to ViewController
+    ↓
+Games appear in UI
 ```
 
 ## Design Patterns
@@ -280,6 +355,7 @@ UI Updates with new games
 Used for manager classes that should have single instances:
 - `PluginManager`
 - `DatabaseManager`
+- `OpenConsoleSystem`
 - `ViewController`
 - `InputManager`
 - `Settings`
@@ -378,7 +454,9 @@ OpenConsole is primarily single-threaded with async operations for:
 2. **New Game Format**: Implement `IGameLauncher`
 3. **New UI View**: Extend `IGameListView`
 4. **New GUI Component**: Extend `GuiComponent`
-5. **New Theme Elements**: Extend `ThemeData`
+5. **New Settings Menu**: Extend `GuiSettings` (see `GuiOpenConsoleSettings`)
+6. **New Input Component**: Use `GuiVirtualKeyboard` as reference
+7. **New Theme Elements**: Extend `ThemeData`
 
 ## Dependencies
 
@@ -416,4 +494,5 @@ OpenConsole is primarily single-threaded with async operations for:
 - [Database Layer Details](architecture/DATABASE.md)
 - [Plugin System Details](architecture/PLUGINS.md)
 - [Launcher System Details](architecture/LAUNCHERS.md)
+- [UI Components Guide](guides/UI_COMPONENTS.md)
 - [Development Guide](development/GETTING_STARTED.md)
