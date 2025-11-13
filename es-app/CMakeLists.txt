@@ -39,6 +39,7 @@ set(ES_HEADERS
     ${CMAKE_CURRENT_SOURCE_DIR}/src/guis/GuiRandomCollectionOptions.h
     ${CMAKE_CURRENT_SOURCE_DIR}/src/guis/GuiInfoPopup.h
     ${CMAKE_CURRENT_SOURCE_DIR}/src/guis/GuiOpenConsoleSettings.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/guis/GuiItchIoAuth.h
 
     # Scrapers
     ${CMAKE_CURRENT_SOURCE_DIR}/src/scrapers/Scraper.h
@@ -71,6 +72,13 @@ set(ES_HEADERS
     ${CMAKE_CURRENT_SOURCE_DIR}/src/plugins/IGameSourcePlugin.h
     ${CMAKE_CURRENT_SOURCE_DIR}/src/plugins/PluginManager.h
     ${CMAKE_CURRENT_SOURCE_DIR}/src/plugins/LocalFilesystemPlugin.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/plugins/ItchIoPlugin.h
+
+    # API
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/api/ItchIoApiClient.h
+
+    # Utils
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/utils/TokenStorage.h
 
     # Launchers
     ${CMAKE_CURRENT_SOURCE_DIR}/src/launchers/IGameLauncher.h
@@ -104,6 +112,13 @@ set(ES_SOURCES
     # Plugins
     ${CMAKE_CURRENT_SOURCE_DIR}/src/plugins/PluginManager.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/plugins/LocalFilesystemPlugin.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/plugins/ItchIoPlugin.cpp
+
+    # API
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/api/ItchIoApiClient.cpp
+
+    # Utils
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/utils/TokenStorage.cpp
 
     # Launchers
     ${CMAKE_CURRENT_SOURCE_DIR}/src/launchers/GameLauncherFactory.cpp
@@ -134,6 +149,7 @@ set(ES_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/src/guis/GuiRandomCollectionOptions.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/guis/GuiInfoPopup.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/guis/GuiOpenConsoleSettings.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/guis/GuiItchIoAuth.cpp
 
     # Scrapers
     ${CMAKE_CURRENT_SOURCE_DIR}/src/scrapers/Scraper.cpp

@@ -25,6 +25,7 @@ private:
 	void addScanPath();
 	void removeScanPath();
 	void configureScanDepth();
+	void openItchIoAuth();
 };
 
 #endif // ES_APP_GUIS_GUI_OPENCONSOLE_SETTINGS_H

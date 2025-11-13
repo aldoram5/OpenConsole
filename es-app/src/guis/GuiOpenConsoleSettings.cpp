@@ -1,12 +1,14 @@
 #include "guis/GuiOpenConsoleSettings.h"
 #include "guis/GuiMsgBox.h"
 #include "guis/GuiVirtualKeyboard.h"
+#include "guis/GuiItchIoAuth.h"
 #include "views/ViewController.h"
 #include "SystemData.h"
 #include "GameScanner.h"
 #include "db/DatabaseManager.h"
 #include "plugins/PluginManager.h"
 #include "plugins/LocalFilesystemPlugin.h"
+#include "plugins/ItchIoPlugin.h"
 #include "components/SwitchComponent.h"
 #include "components/SliderComponent.h"
 #include "Window.h"
@@ -88,6 +90,25 @@ void GuiOpenConsoleSettings::addPluginSettings()
 			std::make_shared<TextComponent>(mWindow, ">", Font::get(FONT_SIZE_SMALL), 0x777777FF));
 		mMenu.getCursorRow()->makeAcceptInputHandler([this] {
 			addScanPath();
+		});
+	}
+
+	// itch.io plugin settings
+	auto itchPlugin = std::dynamic_pointer_cast<ItchIoPlugin>(pm.getPlugin("itch_io"));
+	if (itchPlugin)
+	{
+		// Authentication status
+		std::string authStatus = itchPlugin->isAuthenticated() ? "Authenticated" : "Not authenticated";
+		unsigned int statusColor = itchPlugin->isAuthenticated() ? 0x00FF00FF : 0xFF0000FF;
+
+		addWithLabel("itch.io Status",
+			std::make_shared<TextComponent>(mWindow, authStatus, Font::get(FONT_SIZE_SMALL), statusColor));
+
+		// Authenticate button
+		addWithLabel("itch.io Authentication",
+			std::make_shared<TextComponent>(mWindow, "CONFIGURE", Font::get(FONT_SIZE_SMALL), 0x777777FF));
+		mMenu.getCursorRow()->makeAcceptInputHandler([this, itchPlugin] {
+			openItchIoAuth();
 		});
 	}
 }
@@ -292,4 +313,26 @@ void GuiOpenConsoleSettings::configureScanDepth()
 	// For now, just show current value
 	// TODO: Implement depth selector
 	mWindow->pushGui(new GuiMsgBox(mWindow, ss.str(), "OK", nullptr));
+}
+
+void GuiOpenConsoleSettings::openItchIoAuth()
+{
+	// Open itch.io authentication dialog
+	auto authDialog = new GuiItchIoAuth(mWindow, [this](bool success, const std::string& username) {
+		if (success)
+		{
+			LOG(LogInfo) << "itch.io authentication successful for user: " << username;
+
+			// Show success message
+			mWindow->pushGui(new GuiMsgBox(mWindow,
+				"Successfully authenticated with itch.io!\n\nYou can now scan for your itch.io games.",
+				"OK", nullptr));
+		}
+		else
+		{
+			LOG(LogInfo) << "itch.io authentication cancelled or failed";
+		}
+	});
+
+	mWindow->pushGui(authDialog);
 }

@@ -1,5 +1,6 @@
 #include "plugins/PluginManager.h"
 #include "plugins/LocalFilesystemPlugin.h"
+#include "plugins/ItchIoPlugin.h"
 #include "Log.h"
 
 namespace OpenConsole
@@ -243,7 +244,16 @@ void PluginManager::registerBuiltInPlugins()
 		LOG(LogError) << "Failed to register LocalFilesystemPlugin";
 	}
 
-	// TODO: Register ItchIoPlugin when implemented
+	// Register ItchIoPlugin
+	auto itchPlugin = std::make_shared<ItchIoPlugin>();
+	if (registerPlugin(itchPlugin))
+	{
+		LOG(LogInfo) << "Registered ItchIoPlugin";
+	}
+	else
+	{
+		LOG(LogError) << "Failed to register ItchIoPlugin";
+	}
 }
 
 } // namespace OpenConsole
