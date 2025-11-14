@@ -4,17 +4,127 @@ All notable changes to OpenConsole (fork-specific features) are documented in th
 
 ## [Unreleased]
 
-### Phase 4 - itch.io Integration (Planned)
-- itch.io plugin with OAuth authentication
-- Game library browsing and management
-- Download manager with progress tracking
-- Encrypted token storage
-
 ### Phase 5 - System Integration (Planned)
 - Systemd service for auto-start
 - Boot configuration for Raspberry Pi
 - Pi OS image build scripts
 - Controller configuration utilities
+
+## [0.4.0] - 2025-11-14
+
+### Phase 4: itch.io Integration
+
+#### Added
+- **TokenStorage**: Secure credential storage system
+  - AES-256-CBC encryption for API tokens
+  - Machine-specific encryption key derivation using SHA-256
+  - Stores encrypted credentials in `~/.openconsole/credentials.enc`
+  - File permissions set to 0600 for security
+  - JSON-based storage format with RapidJSON
+  - Singleton pattern for credential management
+  - Methods: storeToken(), getToken(), hasToken(), removeToken(), clearAll()
+
+- **ItchIoApiClient**: HTTP client for itch.io API
+  - Complete API integration with itch.io endpoints
+  - **Endpoints**:
+    - GET /profile - Fetch user profile information
+    - GET /profile/owned-keys - Retrieve owned games library
+    - GET /uploads/{id}/download - Get temporary download URLs
+  - CURL-based implementation with SSL support
+  - Download progress callbacks for UI integration
+  - Automatic redirect following and retry logic
+  - JSON response parsing with error handling
+  - User agent: "OpenConsole/1.0"
+
+- **ItchIoPlugin**: itch.io game source plugin
+  - Implements IGameSourcePlugin interface
+  - API key based authentication (no OAuth required)
+  - Fetches owned games from user's itch.io library
+  - Download games with real-time progress tracking
+  - Auto-detection of game types from filenames:
+    - AppImage (.appimage)
+    - Ren'Py (renpy in filename)
+    - .deb packages (.deb)
+    - Electron (electron in filename)
+    - Archives (.zip, .tar)
+  - Secure credential storage via TokenStorage
+  - Download location: `~/.openconsole/downloads/itch.io/{game_id}/`
+  - Registered automatically in PluginManager
+
+- **GuiItchIoAuth**: Authentication dialog for itch.io
+  - Controller-first UI for API key entry
+  - Virtual keyboard integration for text input
+  - Real-time API key validation and testing
+  - User instructions for obtaining API keys
+  - Display authentication status (authenticated/not authenticated)
+  - Show authenticated username and user ID
+  - Logout functionality to clear credentials
+  - Callback system for authentication completion
+
+#### Integration
+- **GuiOpenConsoleSettings** extended with itch.io section:
+  - itch.io authentication status display
+    - Green "Authenticated" when logged in
+    - Red "Not authenticated" when logged out
+  - "itch.io Authentication" → "CONFIGURE" button
+  - Opens GuiItchIoAuth dialog for credential management
+  - Success message on successful authentication
+- **PluginManager** auto-registers ItchIoPlugin on initialization
+- **GameScanner** includes itch.io games when scanning
+- Updated CMakeLists.txt with all new Phase 4 files
+
+#### Security Features
+- AES-256-CBC encryption for stored API keys
+- Machine-specific encryption keys (non-portable)
+- SHA-256 key derivation from hostname + home path + salt
+- Restrictive file permissions (0600) on credentials file
+- No plaintext credentials in logs or memory after encryption
+- Secure random IV generation for each encryption operation
+- OpenSSL-based cryptography
+
+#### Technical Details
+- **Dependencies**:
+  - OpenSSL (libcrypto) for AES encryption
+  - libCURL for HTTP requests
+  - RapidJSON for API response parsing
+  - Boost.Filesystem for path handling
+- **Architecture**:
+  - TokenStorage: Singleton pattern
+  - ItchIoApiClient: HTTP client layer
+  - ItchIoPlugin: Plugin layer (IGameSourcePlugin)
+  - GuiItchIoAuth: UI layer (GuiComponent)
+- **Error Handling**:
+  - Comprehensive error messages from API
+  - Failed authentication shows specific error reasons
+  - Network errors handled with CURL error codes
+  - JSON parsing errors caught and logged
+
+#### User Workflow
+1. Open OpenConsole Settings → Plugins section
+2. See "itch.io Status: Not authenticated" (red)
+3. Select "itch.io Authentication" → "CONFIGURE"
+4. View instructions to visit itch.io/user/settings/api-keys
+5. Generate API key on itch.io website
+6. Enter API key using virtual keyboard
+7. System tests key and authenticates automatically
+8. Success message displays: "Authenticated as: {username}"
+9. Status updates to green "Authenticated"
+10. Scan for games to include itch.io library
+
+#### Files Added
+- `es-app/src/utils/TokenStorage.h/cpp`
+- `es-app/src/api/ItchIoApiClient.h/cpp`
+- `es-app/src/plugins/ItchIoPlugin.h/cpp`
+- `es-app/src/guis/GuiItchIoAuth.h/cpp`
+
+#### Files Modified
+- `es-app/src/plugins/PluginManager.cpp` (registered ItchIoPlugin)
+- `es-app/src/guis/GuiOpenConsoleSettings.h/cpp` (added itch.io section)
+- `es-app/CMakeLists.txt` (added new files to build)
+
+#### API Documentation
+- itch.io API: https://itch.io/docs/api/overview
+- API Key Generation: https://itch.io/user/settings/api-keys
 
 ## [0.3.0] - 2025-11-13
 
@@ -235,7 +345,7 @@ OpenConsole uses semantic versioning: `MAJOR.MINOR.PATCH`
 - **MINOR**: New features, phases completed
 - **PATCH**: Bug fixes, minor improvements
 
-Current phase: **Phase 3 Complete** (UI Components and Database Integration)
+Current phase: **Phase 4 Complete** (itch.io Integration)
 
 ---
 

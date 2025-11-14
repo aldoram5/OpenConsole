@@ -25,6 +25,7 @@ Welcome to the OpenConsole documentation! This guide will help you understand th
 - [Creating a Plugin](guides/CREATING_PLUGINS.md)
 - [Adding a Game Launcher](guides/ADDING_LAUNCHERS.md)
 - [UI Components Guide](guides/UI_COMPONENTS.md)
+- [itch.io Integration Guide](guides/ITCHIO_INTEGRATION.md)
 - [Contributing Guidelines](development/CONTRIBUTING.md)
 
 ### Reference
@@ -75,10 +76,15 @@ OpenConsole has added the following major features on top of EmulationStation:
 - Main menu integration
 - Controller-first UI design
 
-### Phase 4: itch.io Integration (Planned)
-- itch.io plugin with OAuth authentication
-- Game library browsing
-- Download manager
+### Phase 4: itch.io Integration (Complete)
+- itch.io plugin with API key authentication (ItchIoPlugin)
+- Secure credential storage with AES-256 encryption (TokenStorage)
+- HTTP client for itch.io API (ItchIoApiClient)
+- Game library browsing from owned games
+- Download manager with progress tracking
+- Authentication UI with virtual keyboard (GuiItchIoAuth)
+- Auto-detection of game types from downloads
+- Settings integration for authentication management
 
 ### Phase 5: System Integration (Planned)
 - Systemd service
@@ -95,11 +101,12 @@ OpenConsole has added the following major features on top of EmulationStation:
 
 | Document | Status | Last Updated |
 |----------|--------|--------------|
-| Architecture Overview | ✅ Complete | 2025-11-13 |
+| Architecture Overview | ✅ Complete | 2025-11-14 |
 | Database Layer | ✅ Complete | 2025-11-11 |
 | Plugin System | ✅ Complete | 2025-11-11 |
 | Launcher System | ✅ Complete | 2025-11-11 |
 | UI Components Guide | ✅ Complete | 2025-11-13 |
+| itch.io Integration Guide | ✅ Complete | 2025-11-14 |
 | Development Guide | ✅ Complete | 2025-11-11 |
 | API Reference | ✅ Complete | 2025-11-11 |
 

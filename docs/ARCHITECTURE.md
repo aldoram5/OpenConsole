@@ -194,9 +194,9 @@ Key UI Components:
 
 ```
 IGameSourcePlugin (interface)
-├── LocalFilesystemPlugin
-├── ItchIoPlugin (planned)
-└── [Future plugins...]
+├── LocalFilesystemPlugin (local game scanning)
+├── ItchIoPlugin (itch.io integration)
+└── [Future plugins: Steam, GOG, Epic Games...]
 
 PluginManager (singleton)
 └── Manages plugin lifecycle
@@ -205,7 +205,11 @@ PluginManager (singleton)
 **Design**: Strategy pattern with interface-based plugins
 **Purpose**: Extensible game source discovery
 
-See [Plugin System Documentation](architecture/PLUGINS.md)
+Registered Plugins:
+- **LocalFilesystemPlugin**: Scans local directories for games
+- **ItchIoPlugin**: Fetches and downloads games from itch.io library
+
+See [Plugin System Documentation](architecture/PLUGINS.md) and [itch.io Integration Guide](guides/ITCHIO_INTEGRATION.md)
 
 ### Launcher System
 
@@ -250,6 +254,42 @@ GameScanner
 
 **Design**: Orchestrator pattern
 **Purpose**: Coordinate scanning and database population
+
+### Token Storage
+
+```
+TokenStorage (singleton)
+└── AES-256-CBC encrypted credential storage
+    ├── Machine-specific encryption key
+    ├── SHA-256 key derivation
+    └── JSON format storage
+```
+
+**Design**: Singleton with encryption
+**Purpose**: Secure credential and API token storage
+
+Features:
+- AES-256-CBC encryption for all stored tokens
+- Machine-specific keys (hostname + home path + salt)
+- File permissions: 0600 (owner read/write only)
+- Storage location: `~/.openconsole/credentials.enc`
+
+### itch.io API Client
+
+```
+ItchIoApiClient
+├── HTTP client (libCURL)
+├── JSON parsing (RapidJSON)
+└── Progress callbacks
+```
+
+**Design**: HTTP client wrapper
+**Purpose**: Communication with itch.io API
+
+Endpoints:
+- **GET /profile**: User profile information
+- **GET /profile/owned-keys**: Owned games library
+- **GET /uploads/{id}/download**: Download URLs
 
 ## Data Flow
 
@@ -349,12 +389,115 @@ Add to ViewController
 Games appear in UI
 ```
 
+### itch.io Authentication Flow
+
+```
+User Action (Configure itch.io)
+    ↓
+GuiOpenConsoleSettings::openItchIoAuth()
+    ↓
+GuiItchIoAuth created
+    ↓
+User selects "VIEW INSTRUCTIONS"
+    ↓
+Display API key instructions
+    ↓
+User visits itch.io/user/settings/api-keys
+    ↓
+User generates API key on website
+    ↓
+User selects "ENTER API KEY"
+    ↓
+GuiVirtualKeyboard opens
+    ↓
+User enters API key with controller
+    ↓
+ItchIoPlugin::setApiKey()
+    ↓
+ItchIoPlugin::authenticate()
+    ↓
+ItchIoApiClient::testApiKey()
+    ↓
+HTTP GET /profile (with API key)
+    ↓
+Parse JSON response
+    ↓
+Extract username and user ID
+    ↓
+TokenStorage::storeToken("itch_io", apiKey)
+    ↓
+Encrypt with AES-256-CBC
+    ↓
+Save to ~/.openconsole/credentials.enc
+    ↓
+AuthResult returned (success + username)
+    ↓
+Display "Authenticated as: {username}"
+    ↓
+itch.io games available in scans
+```
+
+### itch.io Game Download Flow
+
+```
+User Action (Scan for Games)
+    ↓
+GameScanner::scanAllSources()
+    ↓
+PluginManager::getAuthenticatedPlugins()
+    ↓
+ItchIoPlugin::isAuthenticated() → true
+    ↓
+ItchIoPlugin::fetchGames()
+    ↓
+TokenStorage::getToken("itch_io")
+    ↓
+Decrypt stored API key
+    ↓
+ItchIoApiClient::getOwnedGames()
+    ↓
+HTTP GET /profile/owned-keys?api_key={key}
+    ↓
+Parse owned games JSON
+    ↓
+Convert ItchIoGame → GameMetadata
+    ↓
+Detect game type from filename
+    ↓
+Return games to scanner
+    ↓
+DatabaseManager::insertGame()
+    ↓
+Games appear in UI
+    ↓
+[User selects game to download]
+    ↓
+ItchIoPlugin::downloadGame()
+    ↓
+ItchIoApiClient::getDownloadUrl(uploadId)
+    ↓
+HTTP GET /uploads/{id}/download
+    ↓
+Get temporary download URL
+    ↓
+ItchIoApiClient::downloadFile(url, path, progressCallback)
+    ↓
+CURL download with progress tracking
+    ↓
+Progress callback updates UI
+    ↓
+File saved to ~/.openconsole/downloads/itch.io/{id}/
+    ↓
+Download complete
+```
+
 ## Design Patterns
 
 ### Singleton Pattern
 Used for manager classes that should have single instances:
 - `PluginManager`
 - `DatabaseManager`
+- `TokenStorage`
 - `OpenConsoleSystem`
 - `ViewController`
 - `InputManager`
@@ -468,6 +611,7 @@ OpenConsole is primarily single-threaded with async operations for:
 - libCURL
 - SQLite3 (>= 3.0)
 - RapidJSON
+- OpenSSL (libcrypto) - for AES-256 encryption
 
 ### Optional
 - libCEC (for TV control)
@@ -495,4 +639,5 @@ OpenConsole is primarily single-threaded with async operations for:
 - [Plugin System Details](architecture/PLUGINS.md)
 - [Launcher System Details](architecture/LAUNCHERS.md)
 - [UI Components Guide](guides/UI_COMPONENTS.md)
+- [itch.io Integration Guide](guides/ITCHIO_INTEGRATION.md)
 - [Development Guide](development/GETTING_STARTED.md)
