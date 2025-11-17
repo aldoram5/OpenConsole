@@ -102,6 +102,7 @@ find_package(SDL2 REQUIRED)
 find_package(CURL REQUIRED)
 find_package(VLC REQUIRED)
 find_package(RapidJSON REQUIRED)
+find_package(SQLite3 REQUIRED)
 
 #add libCEC support
 if(CEC)
@@ -198,6 +199,11 @@ else()
         )
 endif()
 
+#add SQLite3 include directory
+LIST(APPEND COMMON_INCLUDE_DIRS
+    ${SQLite3_INCLUDE_DIRS}
+)
+
 #add libCEC_INCLUDE_DIR
 if(DEFINED libCEC_FOUND)
     LIST(APPEND COMMON_INCLUDE_DIRS
@@ -221,6 +227,7 @@ set(COMMON_LIBRARIES
     ${SDL2_LIBRARIES}
     ${CURL_LIBRARIES}
     ${VLC_LIBRARIES}
+    ${SQLite3_LIBRARIES}
     pugixml
     nanosvg
 )

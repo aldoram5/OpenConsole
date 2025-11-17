@@ -5,7 +5,8 @@
 #include <memory>
 
 #if defined (__APPLE__)
-    #error TODO: Not implemented for MacOS yet!!!
+    // macOS volume control stub - not fully implemented
+    #include <unistd.h>
 #elif defined(__linux__)
 	#include <unistd.h>
 	#include <fcntl.h>
@@ -22,7 +23,7 @@ Singleton pattern. Call getInstance() to get an object.
 class VolumeControl
 {
 #if defined (__APPLE__)
-    #error TODO: Not implemented for MacOS yet!!!
+    // macOS: stub implementation (volume control not functional)
 #elif defined(__linux__)
     static const char * mixerName;
     static const char * mixerCard;

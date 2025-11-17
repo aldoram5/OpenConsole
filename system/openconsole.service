@@ -1,0 +1,36 @@
+[Unit]
+Description=OpenConsole Gaming Console Interface
+After=network.target sound.target systemd-user-sessions.service
+Wants=network.target
+
+[Service]
+Type=simple
+User=openconsole
+Group=openconsole
+ExecStart=/usr/local/bin/openconsole
+Restart=always
+RestartSec=3
+StandardOutput=journal
+StandardError=journal
+
+# Environment
+Environment=DISPLAY=:0
+Environment=HOME=/home/openconsole
+Environment=XDG_RUNTIME_DIR=/run/user/1000
+
+# Security hardening
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=read-only
+ReadWritePaths=/home/openconsole/.emulationstation /home/openconsole/.openconsole
+
+# Resource limits
+LimitNOFILE=65536
+Nice=-10
+
+# Input device access
+SupplementaryGroups=input video audio render
+
+[Install]
+WantedBy=graphical.target

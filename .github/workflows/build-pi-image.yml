@@ -1,0 +1,121 @@
+name: Build Raspberry Pi Image
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version tag for the image'
+        required: false
+        default: 'dev'
+
+jobs:
+  build-pi-image:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            wget \
+            xz-utils \
+            kpartx \
+            qemu-user-static \
+            parted \
+            binfmt-support
+
+      - name: Get version
+        id: version
+        run: |
+          if [[ "${{ github.event_name }}" == "push" ]]; then
+            VERSION="${GITHUB_REF#refs/tags/}"
+          else
+            VERSION="${{ github.event.inputs.version }}"
+          fi
+          echo "version=${VERSION}" >> $GITHUB_OUTPUT
+          echo "Building version: ${VERSION}"
+
+      - name: Build Pi image
+        run: |
+          sudo WORK_DIR="./build-image" ./system/build-pi-image.sh
+        env:
+          IMAGE_VERSION: ${{ steps.version.outputs.version }}
+
+      - name: Rename image with version
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+          # Find the generated image
+          IMAGE_FILE=$(ls openconsole-pi5-*.img.xz 2>/dev/null | head -1)
+          if [[ -n "$IMAGE_FILE" ]]; then
+            NEW_NAME="openconsole-pi5-${VERSION}.img.xz"
+            mv "$IMAGE_FILE" "$NEW_NAME"
+            echo "IMAGE_FILE=${NEW_NAME}" >> $GITHUB_ENV
+          else
+            echo "Error: Image file not found"
+            exit 1
+          fi
+
+      - name: Generate checksums
+        run: |
+          sha256sum "$IMAGE_FILE" > "${IMAGE_FILE}.sha256"
+          md5sum "$IMAGE_FILE" > "${IMAGE_FILE}.md5"
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: pi-image
+          path: |
+            openconsole-pi5-*.img.xz
+            openconsole-pi5-*.img.xz.sha256
+            openconsole-pi5-*.img.xz.md5
+          retention-days: 30
+
+      - name: Create Release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            openconsole-pi5-*.img.xz
+            openconsole-pi5-*.img.xz.sha256
+            openconsole-pi5-*.img.xz.md5
+          body: |
+            ## OpenConsole ${{ steps.version.outputs.version }}
+
+            ### Raspberry Pi 5 Image
+
+            Download the image and flash it to your SD card:
+
+            ```bash
+            # On Linux/macOS
+            xzcat openconsole-pi5-${{ steps.version.outputs.version }}.img.xz | sudo dd of=/dev/sdX bs=4M status=progress
+
+            # Or use Raspberry Pi Imager
+            ```
+
+            **Default credentials:**
+            - User: `openconsole`
+            - Password: `openconsole`
+            - ⚠️ **Change password on first boot!**
+
+            ### First Boot
+            1. Insert SD card and power on Raspberry Pi
+            2. System will auto-expand filesystem and reboot
+            3. OpenConsole starts automatically on second boot
+
+            ### Verify Download
+            ```bash
+            sha256sum -c openconsole-pi5-${{ steps.version.outputs.version }}.img.xz.sha256
+            ```
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

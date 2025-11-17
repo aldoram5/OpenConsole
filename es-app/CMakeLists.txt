@@ -13,6 +13,7 @@ set(ES_HEADERS
     ${CMAKE_CURRENT_SOURCE_DIR}/src/FileFilterIndex.h
     ${CMAKE_CURRENT_SOURCE_DIR}/src/SystemScreenSaver.h
     ${CMAKE_CURRENT_SOURCE_DIR}/src/CollectionSystemManager.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/OpenConsoleSystem.h
 
     # GuiComponents
     ${CMAKE_CURRENT_SOURCE_DIR}/src/components/AsyncReqComponent.h
@@ -37,6 +38,8 @@ set(ES_HEADERS
     ${CMAKE_CURRENT_SOURCE_DIR}/src/guis/GuiCollectionSystemsOptions.h
     ${CMAKE_CURRENT_SOURCE_DIR}/src/guis/GuiRandomCollectionOptions.h
     ${CMAKE_CURRENT_SOURCE_DIR}/src/guis/GuiInfoPopup.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/guis/GuiOpenConsoleSettings.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/guis/GuiItchIoAuth.h
 
     # Scrapers
     ${CMAKE_CURRENT_SOURCE_DIR}/src/scrapers/Scraper.h
@@ -58,6 +61,31 @@ set(ES_HEADERS
     # Animations
     ${CMAKE_CURRENT_SOURCE_DIR}/src/animations/LaunchAnimation.h
     ${CMAKE_CURRENT_SOURCE_DIR}/src/animations/MoveCameraAnimation.h
+
+    # Database
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/db/DatabaseManager.h
+
+    # Game Scanner
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/GameScanner.h
+
+    # Plugins
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/plugins/IGameSourcePlugin.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/plugins/PluginManager.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/plugins/LocalFilesystemPlugin.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/plugins/ItchIoPlugin.h
+
+    # API
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/api/ItchIoApiClient.h
+
+    # Utils
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/utils/TokenStorage.h
+
+    # Launchers
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/launchers/IGameLauncher.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/launchers/GameLauncherFactory.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/launchers/AppImageLauncher.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/launchers/RenpyLauncher.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/launchers/DebLauncher.h
 )
 
 set(ES_SOURCES
@@ -73,6 +101,30 @@ set(ES_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/src/FileFilterIndex.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/SystemScreenSaver.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/CollectionSystemManager.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/OpenConsoleSystem.cpp
+
+    # Database
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/db/DatabaseManager.cpp
+
+    # Game Scanner
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/GameScanner.cpp
+
+    # Plugins
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/plugins/PluginManager.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/plugins/LocalFilesystemPlugin.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/plugins/ItchIoPlugin.cpp
+
+    # API
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/api/ItchIoApiClient.cpp
+
+    # Utils
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/utils/TokenStorage.cpp
+
+    # Launchers
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/launchers/GameLauncherFactory.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/launchers/AppImageLauncher.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/launchers/RenpyLauncher.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/launchers/DebLauncher.cpp
 
     # GuiComponents
     ${CMAKE_CURRENT_SOURCE_DIR}/src/components/AsyncReqComponent.cpp
@@ -96,6 +148,8 @@ set(ES_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/src/guis/GuiCollectionSystemsOptions.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/guis/GuiRandomCollectionOptions.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/guis/GuiInfoPopup.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/guis/GuiOpenConsoleSettings.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/guis/GuiItchIoAuth.cpp
 
     # Scrapers
     ${CMAKE_CURRENT_SOURCE_DIR}/src/scrapers/Scraper.cpp

@@ -9,6 +9,7 @@
 #include "guis/GuiMsgBox.h"
 #include "guis/GuiScraperStart.h"
 #include "guis/GuiSettings.h"
+#include "guis/GuiOpenConsoleSettings.h"
 #include "views/UIModeController.h"
 #include "views/ViewController.h"
 #include "CollectionSystemManager.h"
@@ -28,6 +29,7 @@ GuiMenu::GuiMenu(Window* window) : GuiComponent(window), mMenu(window, "MAIN MEN
 	bool isFullUI = UIModeController::getInstance()->isUIModeFull();
 
 	if (isFullUI) {
+		addEntry("OPENCONSOLE SETTINGS", 0x00FF00FF, true, [this] { openOpenConsoleSettings(); });
 		addEntry("SCRAPER", 0x777777FF, true, [this] { openScraperSettings(); });
 		addEntry("SOUND SETTINGS", 0x777777FF, true, [this] { openSoundSettings(); });
 		addEntry("UI SETTINGS", 0x777777FF, true, [this] { openUISettings(); });
@@ -672,3 +674,10 @@ std::vector<HelpPrompt> GuiMenu::getHelpPrompts()
 	prompts.push_back(HelpPrompt("start", "close"));
 	return prompts;
 }
+
+
+void GuiMenu::openOpenConsoleSettings()
+{
+	mWindow->pushGui(new GuiOpenConsoleSettings(mWindow));
+}
+
