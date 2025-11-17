@@ -126,8 +126,15 @@ build_openconsole() {
 install_openconsole() {
     log_info "Installing OpenConsole to ${INSTALL_DIR}..."
 
-    # Install binary
-    install -m 755 build/emulationstation "${INSTALL_DIR}/bin/openconsole"
+    # Install binary (emulationstation is built in the project root, not build dir)
+    if [[ -f emulationstation ]]; then
+        install -m 755 emulationstation "${INSTALL_DIR}/bin/openconsole"
+    elif [[ -f build/emulationstation ]]; then
+        install -m 755 build/emulationstation "${INSTALL_DIR}/bin/openconsole"
+    else
+        log_error "Could not find emulationstation binary"
+        exit 1
+    fi
 
     # Create symbolic link for compatibility
     ln -sf "${INSTALL_DIR}/bin/openconsole" "${INSTALL_DIR}/bin/emulationstation"

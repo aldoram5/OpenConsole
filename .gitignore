@@ -43,3 +43,6 @@ CPackSourceConfig.cmake
 
 # VSCode
 .vscode/
+
+# MacOS
+.DS_Store

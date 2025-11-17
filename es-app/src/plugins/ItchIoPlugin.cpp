@@ -3,6 +3,7 @@
 #include "Log.h"
 #include "utils/FileSystemUtil.h"
 #include <boost/filesystem.hpp>
+#include <memory>
 
 namespace OpenConsole
 {

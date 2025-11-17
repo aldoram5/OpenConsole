@@ -66,13 +66,14 @@ download_base_image() {
 
 expand_image() {
     log_info "Expanding image size..."
+    # Add 4GB of space for package installation
     dd if=/dev/zero bs=1M count=4096 >> "${WORK_DIR}/base.img"
     LOOPDEV=$(losetup -f --show "${WORK_DIR}/base.img")
     log_info "Attached ${WORK_DIR}/base.img to ${LOOPDEV}"
     partprobe "$LOOPDEV" || true
     parted --script "$LOOPDEV" resizepart 2 100% || true
     losetup -d "$LOOPDEV"
-    log_info "Image expanded"
+    log_info "Image partition expanded"
 }
 
 mount_image() {
@@ -85,6 +86,10 @@ mount_image() {
         exit 1
     fi
     sleep 1
+    # Resize the filesystem to use the expanded partition
+    log_info "Resizing filesystem..."
+    e2fsck -f -y "/dev/mapper/${loop_device}p2" || true
+    resize2fs "/dev/mapper/${loop_device}p2" || true
     mount "/dev/mapper/${loop_device}p2" "$MOUNT_POINT"
     mkdir -p "${MOUNT_POINT}/boot"
     mount "/dev/mapper/${loop_device}p1" "${MOUNT_POINT}/boot"
@@ -101,7 +106,14 @@ mount_image() {
 install_openconsole_to_image() {
     log_info "Installing OpenConsole to image..."
     mkdir -p "${MOUNT_POINT}/tmp/openconsole"
-    rsync -a --exclude="${WORK_DIR#/}" --exclude="${WORK_DIR}" --exclude="${WORK_DIR}/*" . "${MOUNT_POINT}/tmp/openconsole/"
+    rsync -a \
+        --exclude="${WORK_DIR#/}" \
+        --exclude="${WORK_DIR}" \
+        --exclude="${WORK_DIR}/*" \
+        --exclude="build" \
+        --exclude="output" \
+        --exclude=".git" \
+        . "${MOUNT_POINT}/tmp/openconsole/"
     chroot "$MOUNT_POINT" /bin/bash <<'CHROOT_SCRIPT'
 set -e
 apt-get update

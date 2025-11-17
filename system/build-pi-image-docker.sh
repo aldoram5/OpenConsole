@@ -78,19 +78,26 @@ build_image() {
                 qemu-user-static \
                 parted \
                 binfmt-support \
-                ca-certificates
+                ca-certificates \
+                rsync \
+                e2fsprogs
+
+            echo "[INFO] Setting up loop devices..."
+            # Create loop devices if they do not exist
+            for i in {0..7}; do
+                mknod -m 0660 /dev/loop$i b 7 $i 2>/dev/null || true
+            done
 
             echo "[INFO] Running image builder..."
-            cd /workspace/system
-            chmod +x build-pi-image.sh
+            chmod +x /workspace/system/build-pi-image.sh
 
-            # Run the build script
-            WORK_DIR=/tmp/build-image ./build-pi-image.sh
+            # Run the build script from project root
+            cd /workspace
+            WORK_DIR=/tmp/build-image ./system/build-pi-image.sh
 
-            # Copy the output
-            cp /workspace/system/openconsole-pi5-*.img.xz /output/ 2>/dev/null || \
+            # Copy the output (image is created in /tmp)
+            cp /tmp/openconsole-pi5-*.img.xz /output/ 2>/dev/null || \
             cp /workspace/openconsole-pi5-*.img.xz /output/ 2>/dev/null || \
-            cp openconsole-pi5-*.img.xz /output/ 2>/dev/null || \
             echo "[WARN] Could not find output image"
 
             echo "[INFO] Build complete!"

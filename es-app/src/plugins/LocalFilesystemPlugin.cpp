@@ -4,6 +4,7 @@
 #include "Log.h"
 #include <algorithm>
 #include <regex>
+#include <chrono>
 
 namespace OpenConsole
 {
