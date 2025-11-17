@@ -34,7 +34,7 @@ log_error() {
 check_dependencies() {
     log_info "Checking dependencies..."
 
-    local deps=("wget" "xz" "kpartx" "qemu-user-static" "parted")
+    local deps=("wget" "xz" "kpartx" "qemu-aarch64-static" "parted")
     local missing=()
 
     for dep in "${deps[@]}"; do
