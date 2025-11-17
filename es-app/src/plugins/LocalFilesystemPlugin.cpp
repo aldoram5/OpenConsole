@@ -38,8 +38,8 @@ bool LocalFilesystemPlugin::initialize()
 	std::string homeDir = Utils::FileSystem::getHomePath();
 
 	// Default game directories
-	addScanPath(Utils::FileSystem::combine(homeDir, "Games"));
-	addScanPath(Utils::FileSystem::combine(homeDir, ".local/share/games"));
+	addScanPath(homeDir + "/Games");
+	addScanPath(homeDir + "/.local/share/games");
 	addScanPath("/usr/local/games");
 
 	// Check for USB/SD card mount points
@@ -212,11 +212,9 @@ void LocalFilesystemPlugin::scanDirectoryRecursive(const std::string& path,
 	// Sort for consistent ordering
 	std::sort(contents.begin(), contents.end());
 
-	// Process each item
-	for (const auto& item : contents)
+	// Process each item (getDirContent returns full paths)
+	for (const auto& fullPath : contents)
 	{
-		std::string fullPath = Utils::FileSystem::combine(path, item);
-
 		// Skip if shouldn't scan
 		if (!shouldScanPath(fullPath))
 			continue;
@@ -284,13 +282,14 @@ GameMetadata LocalFilesystemPlugin::extractMetadata(const std::string& path, Gam
 		if (type == GameType::RENPY)
 		{
 			// Try to find the actual executable script
-			std::vector<std::string> files = Utils::FileSystem::getDirContent(path);
-			for (const auto& file : files)
+			Utils::FileSystem::stringList fileList = Utils::FileSystem::getDirContent(path);
+			for (const auto& file : fileList)
 			{
 				std::string ext = Utils::FileSystem::getExtension(file);
 				if (ext == ".sh" || ext == ".py")
 				{
-					metadata.executablePath = Utils::FileSystem::combine(path, file);
+					// getDirContent returns full paths
+					metadata.executablePath = file;
 					break;
 				}
 			}
@@ -389,9 +388,9 @@ std::string LocalFilesystemPlugin::findCoverArt(const std::string& gamePath)
 
 	try
 	{
-		std::vector<std::string> files = Utils::FileSystem::getDirContent(searchDir);
+		Utils::FileSystem::stringList fileList = Utils::FileSystem::getDirContent(searchDir);
 
-		for (const auto& file : files)
+		for (const auto& file : fileList)
 		{
 			std::string lowerFile = file;
 			std::transform(lowerFile.begin(), lowerFile.end(), lowerFile.begin(), ::tolower);
@@ -406,9 +405,9 @@ std::string LocalFilesystemPlugin::findCoverArt(const std::string& gamePath)
 					{
 						if (lowerFile.find(ext) != std::string::npos)
 						{
-							std::string fullPath = Utils::FileSystem::combine(searchDir, file);
-							LOG(LogDebug) << "Found cover art: " << fullPath;
-							return fullPath;
+							// getDirContent returns full paths
+							LOG(LogDebug) << "Found cover art: " << file;
+							return file;
 						}
 					}
 				}

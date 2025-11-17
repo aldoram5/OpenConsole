@@ -214,7 +214,7 @@ std::string RenpyLauncher::findRenpyExecutable(const std::string& gamePath)
 
 	for (const auto& name : possibleNames)
 	{
-		std::string path = Utils::FileSystem::combine(gamePath, name);
+		std::string path = gamePath + "/" + name;
 		if (Utils::FileSystem::exists(path))
 		{
 			LOG(LogInfo) << "Found Ren'Py executable: " << path;
@@ -223,15 +223,15 @@ std::string RenpyLauncher::findRenpyExecutable(const std::string& gamePath)
 	}
 
 	// If no .sh file found, look for Python scripts
-	std::vector<std::string> files = Utils::FileSystem::getDirContent(gamePath);
-	for (const auto& file : files)
+	Utils::FileSystem::stringList fileList = Utils::FileSystem::getDirContent(gamePath);
+	for (const auto& file : fileList)
 	{
 		std::string extension = Utils::FileSystem::getExtension(file);
 		if (extension == ".sh" || extension == ".py")
 		{
-			std::string fullPath = Utils::FileSystem::combine(gamePath, file);
-			LOG(LogInfo) << "Found potential Ren'Py executable: " << fullPath;
-			return fullPath;
+			// getDirContent returns full paths, so just use the file directly
+			LOG(LogInfo) << "Found potential Ren'Py executable: " << file;
+			return file;
 		}
 	}
 
