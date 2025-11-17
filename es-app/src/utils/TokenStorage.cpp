@@ -298,7 +298,7 @@ namespace OpenConsole
 		{
 			delete[] plaintext;
 			EVP_CIPHER_CTX_free(ctx);
-			LOG(LogError) << "TokenStorage: Decryption finalization failed (possibly wrong key");
+			LOG(LogError) << "TokenStorage: Decryption finalization failed (possibly wrong key)";
 			return "";
 		}
 
@@ -374,7 +374,7 @@ namespace OpenConsole
 			}
 		}
 
-		LOG(LogInfo) << "TokenStorage: Loaded " + std::to_string(mTokens.size() + " tokens");
+		LOG(LogInfo) << "TokenStorage: Loaded " << mTokens.size() << " tokens";
 		return true;
 	}
 
@@ -424,7 +424,7 @@ namespace OpenConsole
 		// Set restrictive permissions (owner read/write only)
 		chmod(filePath.c_str(), 0600);
 
-		LOG(LogInfo) << "TokenStorage: Saved " + std::to_string(mTokens.size() + " tokens");
+		LOG(LogInfo) << "TokenStorage: Saved " << mTokens.size() << " tokens";
 		return true;
 	}
 
