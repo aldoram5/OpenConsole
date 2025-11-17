@@ -27,8 +27,8 @@ if(NOT pugixml_FOUND)
 
     if(PUGIXML_INCLUDE_DIR AND PUGIXML_LIBRARY)
       message(STATUS "Found pugixml: ${PUGIXML_LIBRARY}")
-      # Create an imported target for pugixml
-      add_library(pugixml UNKNOWN IMPORTED)
+      # Create an imported target for pugixml (GLOBAL so it's visible in parent scope)
+      add_library(pugixml UNKNOWN IMPORTED GLOBAL)
       set_target_properties(pugixml PROPERTIES
         IMPORTED_LOCATION "${PUGIXML_LIBRARY}"
         INTERFACE_INCLUDE_DIRECTORIES "${PUGIXML_INCLUDE_DIR}")
