@@ -104,7 +104,7 @@ void GuiItchIoAuth::enterApiKey()
 	std::string currentKey = mPlugin->getApiKey();
 
 	// Open virtual keyboard
-	auto keyboard = std::make_shared<GuiVirtualKeyboard>(
+	mWindow->pushGui(new GuiVirtualKeyboard(
 		mWindow,
 		"ENTER ITCH.IO API KEY",
 		currentKey,
@@ -127,9 +127,7 @@ void GuiItchIoAuth::enterApiKey()
 		},
 		false,
 		"AUTHENTICATE"
-	);
-
-	mWindow->pushGui(keyboard);
+	));
 }
 
 void GuiItchIoAuth::testAuthentication()
@@ -142,17 +140,8 @@ void GuiItchIoAuth::testAuthentication()
 		return;
 	}
 
-	// Show testing message
-	auto testMsg = std::make_shared<GuiMsgBox>(mWindow,
-		"Testing API key...\nPlease wait...",
-		"", nullptr);
-	mWindow->pushGui(testMsg);
-
 	// Authenticate
 	OpenConsole::AuthResult result = mPlugin->authenticate();
-
-	// Remove testing message
-	mWindow->removeGui(testMsg.get());
 
 	if (result.success)
 	{

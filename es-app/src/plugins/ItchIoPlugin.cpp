@@ -178,7 +178,7 @@ namespace OpenConsole
 			games.push_back(game);
 		}
 
-		LOG(LogInfo) << "ItchIoPlugin: Fetched " + std::to_string(games.size() + " games");
+		LOG(LogInfo) << "ItchIoPlugin: Fetched " << games.size() << " games";
 		return games;
 	}
 

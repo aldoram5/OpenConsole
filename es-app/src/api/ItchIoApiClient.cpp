@@ -162,7 +162,7 @@ namespace OpenConsole
 			}
 		}
 
-		LOG(LogInfo) << "ItchIoApiClient: Fetched " + std::to_string(games.size() + " owned games");
+		LOG(LogInfo) << "ItchIoApiClient: Fetched " << games.size() << " owned games";
 		return games;
 	}
 

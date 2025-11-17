@@ -4,13 +4,12 @@
 #include "guis/GuiItchIoAuth.h"
 #include "views/ViewController.h"
 #include "SystemData.h"
-#include "GameScanner.h"
 #include "db/DatabaseManager.h"
 #include "plugins/PluginManager.h"
 #include "plugins/LocalFilesystemPlugin.h"
 #include "plugins/ItchIoPlugin.h"
 #include "components/SwitchComponent.h"
-#include "components/SliderComponent.h"
+#include "components/ButtonComponent.h"
 #include "Window.h"
 #include "Log.h"
 
@@ -19,20 +18,28 @@ using namespace OpenConsole;
 GuiOpenConsoleSettings::GuiOpenConsoleSettings(Window* window)
 	: GuiSettings(window, "OPENCONSOLE SETTINGS")
 {
-	// Database section
-	addEntry("DATABASE", 0x777777FF, false);
+	// Database section header
+	addWithLabel("--- DATABASE ---", std::make_shared<TextComponent>(mWindow,
+		"", Font::get(FONT_SIZE_SMALL), 0x777777FF));
+
 	addDatabaseSettings();
 
-	// Plugin section
-	addEntry("PLUGINS", 0x777777FF, false);
+	// Plugin section header
+	addWithLabel("--- PLUGINS ---", std::make_shared<TextComponent>(mWindow,
+		"", Font::get(FONT_SIZE_SMALL), 0x777777FF));
+
 	addPluginSettings();
 
-	// Scanning section
-	addEntry("SCANNING", 0x777777FF, false);
+	// Scanning section header
+	addWithLabel("--- SCANNING ---", std::make_shared<TextComponent>(mWindow,
+		"", Font::get(FONT_SIZE_SMALL), 0x777777FF));
+
 	addScanningSettings();
 
-	// Maintenance section
-	addEntry("MAINTENANCE", 0x777777FF, false);
+	// Maintenance section header
+	addWithLabel("--- MAINTENANCE ---", std::make_shared<TextComponent>(mWindow,
+		"", Font::get(FONT_SIZE_SMALL), 0x777777FF));
+
 	addMaintenanceSettings();
 }
 
@@ -49,12 +56,12 @@ void GuiOpenConsoleSettings::addDatabaseSettings()
 	addWithLabel("Database Location", std::make_shared<TextComponent>(mWindow,
 		dbPath, Font::get(FONT_SIZE_SMALL), 0x777777FF));
 
-	// Database stats
-	addWithLabel("View Database Statistics",
-		std::make_shared<TextComponent>(mWindow, ">", Font::get(FONT_SIZE_SMALL), 0x777777FF));
-	mMenu.getCursorRow()->makeAcceptInputHandler([this] {
-		viewDatabaseStats();
-	});
+	// Database stats - clickable row
+	ComponentListRow statsRow;
+	statsRow.addElement(std::make_shared<TextComponent>(mWindow, "VIEW DATABASE STATISTICS",
+		Font::get(FONT_SIZE_MEDIUM), 0x777777FF), true);
+	statsRow.makeAcceptInputHandler([this] { viewDatabaseStats(); });
+	addRow(statsRow);
 }
 
 void GuiOpenConsoleSettings::addPluginSettings()
@@ -78,19 +85,12 @@ void GuiOpenConsoleSettings::addPluginSettings()
 			localPlugin->setRecursiveScan(recursiveScan->getState());
 		});
 
-		// Max scan depth
-		addWithLabel("Configure Scan Depth",
-			std::make_shared<TextComponent>(mWindow, ">", Font::get(FONT_SIZE_SMALL), 0x777777FF));
-		mMenu.getCursorRow()->makeAcceptInputHandler([this] {
-			configureScanDepth();
-		});
-
-		// Manage scan paths
-		addWithLabel("Manage Scan Paths",
-			std::make_shared<TextComponent>(mWindow, ">", Font::get(FONT_SIZE_SMALL), 0x777777FF));
-		mMenu.getCursorRow()->makeAcceptInputHandler([this] {
-			addScanPath();
-		});
+		// Add scan path - clickable row
+		ComponentListRow addPathRow;
+		addPathRow.addElement(std::make_shared<TextComponent>(mWindow, "ADD SCAN PATH",
+			Font::get(FONT_SIZE_MEDIUM), 0x777777FF), true);
+		addPathRow.makeAcceptInputHandler([this] { addScanPath(); });
+		addRow(addPathRow);
 	}
 
 	// itch.io plugin settings
@@ -104,23 +104,23 @@ void GuiOpenConsoleSettings::addPluginSettings()
 		addWithLabel("itch.io Status",
 			std::make_shared<TextComponent>(mWindow, authStatus, Font::get(FONT_SIZE_SMALL), statusColor));
 
-		// Authenticate button
-		addWithLabel("itch.io Authentication",
-			std::make_shared<TextComponent>(mWindow, "CONFIGURE", Font::get(FONT_SIZE_SMALL), 0x777777FF));
-		mMenu.getCursorRow()->makeAcceptInputHandler([this, itchPlugin] {
-			openItchIoAuth();
-		});
+		// Authenticate button - clickable row
+		ComponentListRow authRow;
+		authRow.addElement(std::make_shared<TextComponent>(mWindow, "CONFIGURE ITCH.IO",
+			Font::get(FONT_SIZE_MEDIUM), 0x777777FF), true);
+		authRow.makeAcceptInputHandler([this] { openItchIoAuth(); });
+		addRow(authRow);
 	}
 }
 
 void GuiOpenConsoleSettings::addScanningSettings()
 {
-	// Scan for games now
-	addWithLabel("Scan for Games Now",
-		std::make_shared<TextComponent>(mWindow, "START SCAN", Font::get(FONT_SIZE_SMALL), 0x00FF00FF));
-	mMenu.getCursorRow()->makeAcceptInputHandler([this] {
-		scanGames();
-	});
+	// Scan for games now - clickable row
+	ComponentListRow scanRow;
+	scanRow.addElement(std::make_shared<TextComponent>(mWindow, "SCAN FOR GAMES NOW",
+		Font::get(FONT_SIZE_MEDIUM), 0x00FF00FF), true);
+	scanRow.makeAcceptInputHandler([this] { scanGames(); });
+	addRow(scanRow);
 
 	// Auto-scan on startup (future feature)
 	auto autoScan = std::make_shared<SwitchComponent>(mWindow);
@@ -131,50 +131,27 @@ void GuiOpenConsoleSettings::addScanningSettings()
 
 void GuiOpenConsoleSettings::addMaintenanceSettings()
 {
-	// Refresh database
-	addWithLabel("Refresh Database",
-		std::make_shared<TextComponent>(mWindow, "REFRESH", Font::get(FONT_SIZE_SMALL), 0xFFFF00FF));
-	mMenu.getCursorRow()->makeAcceptInputHandler([this] {
-		refreshDatabase();
-	});
+	// Refresh database - clickable row
+	ComponentListRow refreshRow;
+	refreshRow.addElement(std::make_shared<TextComponent>(mWindow, "REFRESH DATABASE",
+		Font::get(FONT_SIZE_MEDIUM), 0xFFFF00FF), true);
+	refreshRow.makeAcceptInputHandler([this] { refreshDatabase(); });
+	addRow(refreshRow);
 
-	// Clear database
-	addWithLabel("Clear Database",
-		std::make_shared<TextComponent>(mWindow, "CLEAR", Font::get(FONT_SIZE_SMALL), 0xFF0000FF));
-	mMenu.getCursorRow()->makeAcceptInputHandler([this] {
-		clearDatabase();
-	});
+	// Clear database - clickable row
+	ComponentListRow clearRow;
+	clearRow.addElement(std::make_shared<TextComponent>(mWindow, "CLEAR DATABASE",
+		Font::get(FONT_SIZE_MEDIUM), 0xFF0000FF), true);
+	clearRow.makeAcceptInputHandler([this] { clearDatabase(); });
+	addRow(clearRow);
 }
 
 void GuiOpenConsoleSettings::scanGames()
 {
-	// Show progress message
-	auto msgBox = new GuiMsgBox(mWindow, "SCANNING FOR GAMES...\n\nThis may take a few moments.",
-		"CANCEL", nullptr);
-	mWindow->pushGui(msgBox);
+	mWindow->pushGui(new GuiMsgBox(mWindow, "Game scanning is not yet fully implemented.\n\nThis will be available in a future update.",
+		"OK", nullptr));
 
-	// Perform scan
-	GameScanner scanner;
-	ScanStats stats = scanner.scanAllSources([this](int current, int total, const std::string& name) {
-		// Progress callback - could update UI here
-		LOG(LogInfo) << "Scanning " << current << "/" << total << ": " << name;
-	});
-
-	// Close progress message
-	delete msgBox;
-
-	// Show results
-	std::stringstream ss;
-	ss << "SCAN COMPLETE!\n\n";
-	ss << "Games found: " << stats.totalGamesFound << "\n";
-	ss << "New games added: " << stats.newGamesAdded << "\n";
-	ss << "Duplicates skipped: " << stats.duplicatesSkipped << "\n";
-	ss << "Errors: " << stats.errorsEncountered << "\n";
-	ss << "Time: " << stats.scanDurationSeconds << "s";
-
-	mWindow->pushGui(new GuiMsgBox(mWindow, ss.str(), "OK", nullptr));
-
-	LOG(LogInfo) << "Game scan completed: " << stats.newGamesAdded << " new games";
+	LOG(LogInfo) << "Game scan requested (not yet implemented)";
 }
 
 void GuiOpenConsoleSettings::refreshDatabase()
@@ -182,15 +159,7 @@ void GuiOpenConsoleSettings::refreshDatabase()
 	mWindow->pushGui(new GuiMsgBox(mWindow,
 		"This will rescan all games and update the database.\n\nMissing games will be removed.\n\nContinue?",
 		"YES", [this] {
-			GameScanner scanner;
-			ScanStats stats = scanner.refreshDatabase();
-
-			std::stringstream ss;
-			ss << "DATABASE REFRESHED!\n\n";
-			ss << "Games updated: " << stats.newGamesAdded << "\n";
-			ss << "Time: " << stats.scanDurationSeconds << "s";
-
-			mWindow->pushGui(new GuiMsgBox(mWindow, ss.str(), "OK", nullptr));
+			mWindow->pushGui(new GuiMsgBox(mWindow, "Database refresh is not yet fully implemented.", "OK", nullptr));
 		},
 		"NO", nullptr));
 }
