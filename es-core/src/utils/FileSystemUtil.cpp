@@ -21,6 +21,10 @@
 #else // _WIN32
 #include <dirent.h>
 #include <unistd.h>
+#if defined(__APPLE__)
+// macOS doesn't have stat64, but stat already supports large files
+#define stat64 stat
+#endif // __APPLE__
 #endif // _WIN32
 
 //////////////////////////////////////////////////////////////////////////
