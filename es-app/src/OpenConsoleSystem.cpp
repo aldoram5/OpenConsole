@@ -137,7 +137,7 @@ void OpenConsoleSystem::populateGameListFromDatabase(SystemData* system)
 	}
 
 	// Index games for better performance
-	system->getRootFolder()->sort(FileSorts::SortTypes.at(0).comparisonFunction, false);
+	system->getRootFolder()->sort(*FileSorts::SortTypes.at(0).comparisonFunction, false);
 }
 
 FileData* OpenConsoleSystem::createFileDataFromGame(SystemData* system, const GameMetadata& game)

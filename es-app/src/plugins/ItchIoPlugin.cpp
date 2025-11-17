@@ -1,6 +1,7 @@
 #include "ItchIoPlugin.h"
 #include "launchers/GameLauncherFactory.h"
 #include "Log.h"
+#include "utils/FileSystemUtil.h"
 #include <boost/filesystem.hpp>
 
 namespace OpenConsole
@@ -21,13 +22,13 @@ namespace OpenConsole
 		if (mInitialized)
 			return true;
 
-		Log::write(LogInfo, "ItchIoPlugin: Initializing");
+		LOG(LogInfo) << "ItchIoPlugin: Initializing";
 
 		// Initialize token storage
 		if (!TokenStorage::getInstance().initialize())
 		{
 			mLastError = "Failed to initialize token storage";
-			Log::write(LogError, "ItchIoPlugin: " + mLastError);
+			LOG(LogError) << "ItchIoPlugin: " + mLastError;
 			return false;
 		}
 
@@ -36,11 +37,11 @@ namespace OpenConsole
 		if (!apiKey.empty())
 		{
 			mApiClient->setApiKey(apiKey);
-			Log::write(LogInfo, "ItchIoPlugin: Loaded API key from storage");
+			LOG(LogInfo) << "ItchIoPlugin: Loaded API key from storage";
 		}
 
 		mInitialized = true;
-		Log::write(LogInfo, "ItchIoPlugin: Initialized successfully");
+		LOG(LogInfo) << "ItchIoPlugin: Initialized successfully";
 		return true;
 	}
 
@@ -49,7 +50,7 @@ namespace OpenConsole
 		if (!mInitialized)
 			return;
 
-		Log::write(LogInfo, "ItchIoPlugin: Shutting down");
+		LOG(LogInfo) << "ItchIoPlugin: Shutting down";
 		mInitialized = false;
 	}
 
@@ -99,7 +100,7 @@ namespace OpenConsole
 		result.userId = std::to_string(profile.id);
 		result.userName = profile.displayName.empty() ? profile.username : profile.displayName;
 
-		Log::write(LogInfo, "ItchIoPlugin: Authenticated as " + result.userName);
+		LOG(LogInfo) << "ItchIoPlugin: Authenticated as " + result.userName;
 		return result;
 	}
 
@@ -114,7 +115,7 @@ namespace OpenConsole
 		// Remove from token storage
 		TokenStorage::getInstance().removeToken("itch_io");
 
-		Log::write(LogInfo, "ItchIoPlugin: Logged out");
+		LOG(LogInfo) << "ItchIoPlugin: Logged out";
 	}
 
 	void ItchIoPlugin::setApiKey(const std::string& apiKey)
@@ -156,7 +157,7 @@ namespace OpenConsole
 		if (!isAuthenticated())
 		{
 			mLastError = "Not authenticated with itch.io";
-			Log::write(LogWarning, "ItchIoPlugin: " + mLastError);
+			LOG(LogWarning) << "ItchIoPlugin: " + mLastError;
 			return games;
 		}
 
@@ -177,7 +178,7 @@ namespace OpenConsole
 			games.push_back(game);
 		}
 
-		Log::write(LogInfo, "ItchIoPlugin: Fetched " + std::to_string(games.size()) + " games");
+		LOG(LogInfo) << "ItchIoPlugin: Fetched " + std::to_string(games.size() + " games");
 		return games;
 	}
 
@@ -235,7 +236,7 @@ namespace OpenConsole
 			return false;
 		}
 
-		Log::write(LogInfo, "ItchIoPlugin: Downloaded " + game.name + " to " + outputPath.string());
+		LOG(LogInfo) << "ItchIoPlugin: Downloaded " + game.name + " to " + outputPath.string();
 		return true;
 	}
 
@@ -283,7 +284,7 @@ namespace OpenConsole
 		}
 
 		// Set install path to default itch.io downloads location
-		std::string homeDir = getHomePath();
+		std::string homeDir = Utils::FileSystem::getHomePath();
 		game.installPath = homeDir + "/.openconsole/downloads/itch.io/" +
 			std::to_string(itchGame.id);
 

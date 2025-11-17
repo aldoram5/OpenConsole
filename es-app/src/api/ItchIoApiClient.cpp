@@ -76,7 +76,7 @@ namespace OpenConsole
 		if (user.HasMember("cover_url") && user["cover_url"].IsString())
 			profile.coverUrl = user["cover_url"].GetString();
 
-		Log::write(LogInfo, "ItchIoApiClient: Fetched profile for user: " + profile.username);
+		LOG(LogInfo) << "ItchIoApiClient: Fetched profile for user: " + profile.username;
 		return true;
 	}
 
@@ -162,7 +162,7 @@ namespace OpenConsole
 			}
 		}
 
-		Log::write(LogInfo, "ItchIoApiClient: Fetched " + std::to_string(games.size()) + " owned games");
+		LOG(LogInfo) << "ItchIoApiClient: Fetched " + std::to_string(games.size() + " owned games");
 		return games;
 	}
 
@@ -184,7 +184,7 @@ namespace OpenConsole
 		}
 
 		std::string downloadUrl = doc["url"].GetString();
-		Log::write(LogInfo, "ItchIoApiClient: Got download URL for upload " + std::to_string(uploadId));
+		LOG(LogInfo) << "ItchIoApiClient: Got download URL for upload " + std::to_string(uploadId);
 		return downloadUrl;
 	}
 
@@ -249,7 +249,7 @@ namespace OpenConsole
 			return false;
 		}
 
-		Log::write(LogInfo, "ItchIoApiClient: Downloaded file to " + outputPath);
+		LOG(LogInfo) << "ItchIoApiClient: Downloaded file to " + outputPath;
 		return true;
 	}
 
@@ -316,7 +316,7 @@ namespace OpenConsole
 		if (doc.HasParseError())
 		{
 			mLastError = "JSON parse error at offset " + std::to_string(doc.GetErrorOffset());
-			Log::write(LogError, "ItchIoApiClient: " + mLastError);
+			LOG(LogError) << "ItchIoApiClient: " + mLastError;
 			return false;
 		}
 
@@ -327,7 +327,7 @@ namespace OpenConsole
 			if (errors.Size() > 0 && errors[0].IsString())
 			{
 				mLastError = "API error: " + std::string(errors[0].GetString());
-				Log::write(LogError, "ItchIoApiClient: " + mLastError);
+				LOG(LogError) << "ItchIoApiClient: " + mLastError;
 				return false;
 			}
 		}

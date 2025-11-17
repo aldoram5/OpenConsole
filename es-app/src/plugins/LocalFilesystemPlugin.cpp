@@ -201,7 +201,9 @@ void LocalFilesystemPlugin::scanDirectoryRecursive(const std::string& path,
 	std::vector<std::string> contents;
 	try
 	{
-		contents = Utils::FileSystem::getDirContent(path);
+		Utils::FileSystem::stringList dirList = Utils::FileSystem::getDirContent(path);
+		// Convert list to vector for sorting
+		contents.assign(dirList.begin(), dirList.end());
 	}
 	catch (const std::exception& e)
 	{

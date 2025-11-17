@@ -1,6 +1,7 @@
 #include "TokenStorage.h"
 #include "Log.h"
 #include "platform.h"
+#include "utils/FileSystemUtil.h"
 #include <fstream>
 #include <sstream>
 #include <rapidjson/document.h>
@@ -42,14 +43,14 @@ namespace OpenConsole
 			return true;
 
 		// Create OpenConsole directory if it doesn't exist
-		std::string ocDir = getHomePath() + "/.openconsole";
+		std::string ocDir = Utils::FileSystem::getHomePath() + "/.openconsole";
 		struct stat st;
 		if (stat(ocDir.c_str(), &st) != 0)
 		{
 			if (mkdir(ocDir.c_str(), 0700) != 0)
 			{
 				mLastError = "Failed to create OpenConsole directory: " + ocDir;
-				Log::write(LogError, "TokenStorage: " + mLastError);
+				LOG(LogError) << "TokenStorage: " + mLastError;
 				return false;
 			}
 		}
@@ -58,7 +59,7 @@ namespace OpenConsole
 		loadFromFile();
 
 		mInitialized = true;
-		Log::write(LogInfo, "TokenStorage: Initialized successfully");
+		LOG(LogInfo) << "TokenStorage: Initialized successfully";
 		return true;
 	}
 
@@ -79,7 +80,7 @@ namespace OpenConsole
 			return false;
 		}
 
-		Log::write(LogInfo, "TokenStorage: Stored token for service: " + serviceName);
+		LOG(LogInfo) << "TokenStorage: Stored token for service: " + serviceName;
 		return true;
 	}
 
@@ -125,7 +126,7 @@ namespace OpenConsole
 			return false;
 		}
 
-		Log::write(LogInfo, "TokenStorage: Removed token for service: " + serviceName);
+		LOG(LogInfo) << "TokenStorage: Removed token for service: " + serviceName;
 		return true;
 	}
 
@@ -142,13 +143,13 @@ namespace OpenConsole
 		if (!saveToFile())
 			return false;
 
-		Log::write(LogInfo, "TokenStorage: Cleared all tokens");
+		LOG(LogInfo) << "TokenStorage: Cleared all tokens";
 		return true;
 	}
 
 	std::string TokenStorage::getStorageFilePath() const
 	{
-		return getHomePath() + "/.openconsole/credentials.enc";
+		return Utils::FileSystem::getHomePath() + "/.openconsole/credentials.enc";
 	}
 
 	std::string TokenStorage::getEncryptionKey() const
@@ -165,7 +166,7 @@ namespace OpenConsole
 			keyMaterial += hostname;
 
 		// Add user home path
-		keyMaterial += getHomePath();
+		keyMaterial += Utils::FileSystem::getHomePath();
 
 		// Add a fixed salt specific to OpenConsole
 		keyMaterial += "OpenConsole-ItchIO-Token-Storage-v1";
@@ -189,7 +190,7 @@ namespace OpenConsole
 		unsigned char iv[AES_IV_SIZE];
 		if (RAND_bytes(iv, AES_IV_SIZE) != 1)
 		{
-			Log::write(LogError, "TokenStorage: Failed to generate IV");
+			LOG(LogError) << "TokenStorage: Failed to generate IV";
 			return "";
 		}
 
@@ -197,7 +198,7 @@ namespace OpenConsole
 		EVP_CIPHER_CTX* ctx = EVP_CIPHER_CTX_new();
 		if (!ctx)
 		{
-			Log::write(LogError, "TokenStorage: Failed to create cipher context");
+			LOG(LogError) << "TokenStorage: Failed to create cipher context";
 			return "";
 		}
 
@@ -206,7 +207,7 @@ namespace OpenConsole
 			reinterpret_cast<const unsigned char*>(key.c_str()), iv) != 1)
 		{
 			EVP_CIPHER_CTX_free(ctx);
-			Log::write(LogError, "TokenStorage: Failed to initialize encryption");
+			LOG(LogError) << "TokenStorage: Failed to initialize encryption";
 			return "";
 		}
 
@@ -222,7 +223,7 @@ namespace OpenConsole
 		{
 			delete[] ciphertext;
 			EVP_CIPHER_CTX_free(ctx);
-			Log::write(LogError, "TokenStorage: Encryption failed");
+			LOG(LogError) << "TokenStorage: Encryption failed";
 			return "";
 		}
 
@@ -233,7 +234,7 @@ namespace OpenConsole
 		{
 			delete[] ciphertext;
 			EVP_CIPHER_CTX_free(ctx);
-			Log::write(LogError, "TokenStorage: Encryption finalization failed");
+			LOG(LogError) << "TokenStorage: Encryption finalization failed";
 			return "";
 		}
 
@@ -264,7 +265,7 @@ namespace OpenConsole
 		EVP_CIPHER_CTX* ctx = EVP_CIPHER_CTX_new();
 		if (!ctx)
 		{
-			Log::write(LogError, "TokenStorage: Failed to create cipher context");
+			LOG(LogError) << "TokenStorage: Failed to create cipher context";
 			return "";
 		}
 
@@ -273,7 +274,7 @@ namespace OpenConsole
 			reinterpret_cast<const unsigned char*>(key.c_str()), iv) != 1)
 		{
 			EVP_CIPHER_CTX_free(ctx);
-			Log::write(LogError, "TokenStorage: Failed to initialize decryption");
+			LOG(LogError) << "TokenStorage: Failed to initialize decryption";
 			return "";
 		}
 
@@ -286,7 +287,7 @@ namespace OpenConsole
 		{
 			delete[] plaintext;
 			EVP_CIPHER_CTX_free(ctx);
-			Log::write(LogError, "TokenStorage: Decryption failed");
+			LOG(LogError) << "TokenStorage: Decryption failed";
 			return "";
 		}
 
@@ -297,7 +298,7 @@ namespace OpenConsole
 		{
 			delete[] plaintext;
 			EVP_CIPHER_CTX_free(ctx);
-			Log::write(LogError, "TokenStorage: Decryption finalization failed (possibly wrong key)");
+			LOG(LogError) << "TokenStorage: Decryption finalization failed (possibly wrong key");
 			return "";
 		}
 
@@ -319,7 +320,7 @@ namespace OpenConsole
 		if (stat(filePath.c_str(), &st) != 0)
 		{
 			// File doesn't exist yet, that's okay
-			Log::write(LogInfo, "TokenStorage: No existing credentials file");
+			LOG(LogInfo) << "TokenStorage: No existing credentials file";
 			return true;
 		}
 
@@ -328,7 +329,7 @@ namespace OpenConsole
 		if (!file.is_open())
 		{
 			mLastError = "Failed to open credentials file for reading";
-			Log::write(LogWarning, "TokenStorage: " + mLastError);
+			LOG(LogWarning) << "TokenStorage: " + mLastError;
 			return false;
 		}
 
@@ -339,7 +340,7 @@ namespace OpenConsole
 		std::string encrypted = buffer.str();
 		if (encrypted.empty())
 		{
-			Log::write(LogInfo, "TokenStorage: Credentials file is empty");
+			LOG(LogInfo) << "TokenStorage: Credentials file is empty";
 			return true;
 		}
 
@@ -348,7 +349,7 @@ namespace OpenConsole
 		if (decrypted.empty())
 		{
 			mLastError = "Failed to decrypt credentials file";
-			Log::write(LogError, "TokenStorage: " + mLastError);
+			LOG(LogError) << "TokenStorage: " + mLastError;
 			return false;
 		}
 
@@ -359,7 +360,7 @@ namespace OpenConsole
 		if (doc.HasParseError() || !doc.IsObject())
 		{
 			mLastError = "Failed to parse credentials file (corrupted?)";
-			Log::write(LogError, "TokenStorage: " + mLastError);
+			LOG(LogError) << "TokenStorage: " + mLastError;
 			return false;
 		}
 
@@ -373,7 +374,7 @@ namespace OpenConsole
 			}
 		}
 
-		Log::write(LogInfo, "TokenStorage: Loaded " + std::to_string(mTokens.size()) + " tokens");
+		LOG(LogInfo) << "TokenStorage: Loaded " + std::to_string(mTokens.size() + " tokens");
 		return true;
 	}
 
@@ -403,7 +404,7 @@ namespace OpenConsole
 		if (encrypted.empty())
 		{
 			mLastError = "Failed to encrypt credentials";
-			Log::write(LogError, "TokenStorage: " + mLastError);
+			LOG(LogError) << "TokenStorage: " + mLastError;
 			return false;
 		}
 
@@ -413,7 +414,7 @@ namespace OpenConsole
 		if (!file.is_open())
 		{
 			mLastError = "Failed to open credentials file for writing";
-			Log::write(LogError, "TokenStorage: " + mLastError);
+			LOG(LogError) << "TokenStorage: " + mLastError;
 			return false;
 		}
 
@@ -423,7 +424,7 @@ namespace OpenConsole
 		// Set restrictive permissions (owner read/write only)
 		chmod(filePath.c_str(), 0600);
 
-		Log::write(LogInfo, "TokenStorage: Saved " + std::to_string(mTokens.size()) + " tokens");
+		LOG(LogInfo) << "TokenStorage: Saved " + std::to_string(mTokens.size() + " tokens");
 		return true;
 	}
 
