@@ -22,8 +22,9 @@
 #include <dirent.h>
 #include <unistd.h>
 #if defined(__APPLE__)
-// macOS doesn't have stat64, but stat already supports large files
+// macOS doesn't have stat64/lstat64, but stat/lstat already support large files
 #define stat64 stat
+#define lstat64 lstat
 #endif // __APPLE__
 #endif // _WIN32
 
