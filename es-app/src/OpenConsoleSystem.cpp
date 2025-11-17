@@ -3,6 +3,7 @@
 #include "plugins/PluginManager.h"
 #include "launchers/GameLauncherFactory.h"
 #include "FileData.h"
+#include "FileSorts.h"
 #include "Log.h"
 #include "Settings.h"
 #include "utils/FileSystemUtil.h"
@@ -71,16 +72,16 @@ SystemData* OpenConsoleSystem::createSystem()
 	}
 
 	// Create OpenConsole system
-	SystemEnvironmentData envData;
-	envData.mStartPath = Utils::FileSystem::getHomePath() + "/Games";
-	envData.mSearchExtensions.push_back(".appimage");
-	envData.mSearchExtensions.push_back(".sh");
-	envData.mSearchExtensions.push_back(".deb");
-	envData.mLaunchCommand = "";  // We use our launcher system instead
-	envData.mPlatformIds.push_back(PlatformIds::PLATFORM_LINUX);
+	SystemEnvironmentData* envData = new SystemEnvironmentData();
+	envData->mStartPath = Utils::FileSystem::getHomePath() + "/Games";
+	envData->mSearchExtensions.push_back(".appimage");
+	envData->mSearchExtensions.push_back(".sh");
+	envData->mSearchExtensions.push_back(".deb");
+	envData->mLaunchCommand = "";  // We use our launcher system instead
+	envData->mPlatformIds.push_back(PlatformIds::PC);  // Use PC for generic games
 
 	sOpenConsoleSystem = new SystemData("openconsole", "OpenConsole Games",
-		envData, "openconsole", nullptr);
+		envData, "openconsole", false);
 
 	// Populate from database
 	populateGameListFromDatabase(sOpenConsoleSystem);
@@ -98,7 +99,13 @@ void OpenConsoleSystem::refreshGameList()
 	LOG(LogInfo) << "Refreshing OpenConsole game list from database";
 
 	// Clear existing games
-	sOpenConsoleSystem->getRootFolder()->clear();
+	FileData* rootFolder = sOpenConsoleSystem->getRootFolder();
+	std::vector<FileData*> children = rootFolder->getChildren();
+	for (auto* child : children)
+	{
+		rootFolder->removeChild(child);
+		delete child;
+	}
 
 	// Repopulate from database
 	populateGameListFromDatabase(sOpenConsoleSystem);
@@ -171,8 +178,9 @@ FileData* OpenConsoleSystem::createFileDataFromGame(SystemData* system, const Ga
 	}
 
 	// Store game type and source as metadata (custom fields)
-	metadata.set("source", DatabaseManager::gameSourceToString(game.source));
-	metadata.set("gametype", DatabaseManager::gameTypeToString(game.gameType));
+	DatabaseManager& db = DatabaseManager::getInstance();
+	metadata.set("source", db.gameSourceToString(game.source));
+	metadata.set("gametype", db.gameTypeToString(game.gameType));
 
 	// Store database ID for easy lookup
 	metadata.set("dbid", std::to_string(game.id));
