@@ -28,12 +28,17 @@ std::string ResourceManager::getResourcePath(const std::string& path) const
 		std::string test;
 
 		// check in homepath
-		test = Utils::FileSystem::getHomePath() + "/.emulationstation/resources/" + &path[2];
+		test = Utils::FileSystem::getHomePath() + "/.openconsole/resources/" + &path[2];
 		if(Utils::FileSystem::exists(test))
 			return test;
 
 		// check in exepath
 		test = Utils::FileSystem::getExePath() + "/resources/" + &path[2];
+		if(Utils::FileSystem::exists(test))
+			return test;
+
+		// check in share directory (for system-wide installations like /usr/local/bin/openconsole)
+		test = Utils::FileSystem::getParent(Utils::FileSystem::getExePath()) + "/share/openconsole/" + &path[2];
 		if(Utils::FileSystem::exists(test))
 			return test;
 

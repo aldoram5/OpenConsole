@@ -23,7 +23,7 @@ NoNewPrivileges=true
 PrivateTmp=true
 ProtectSystem=strict
 ProtectHome=read-only
-ReadWritePaths=/home/openconsole/.emulationstation /home/openconsole/.openconsole
+ReadWritePaths=/home/openconsole/.openconsole
 
 # Resource limits
 LimitNOFILE=65536

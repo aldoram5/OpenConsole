@@ -447,11 +447,11 @@ void SystemData::deleteSystems()
 
 std::string SystemData::getConfigPath(bool forWrite)
 {
-	std::string path = Utils::FileSystem::getHomePath() + "/.emulationstation/es_systems.cfg";
+	std::string path = Utils::FileSystem::getHomePath() + "/.openconsole/es_systems.cfg";
 	if(forWrite || Utils::FileSystem::exists(path))
 		return path;
 
-	return "/etc/emulationstation/es_systems.cfg";
+	return "/etc/openconsole/es_systems.cfg";
 }
 
 bool SystemData::isVisible()
@@ -497,13 +497,13 @@ std::string SystemData::getGamelistPath(bool forWrite) const
 	if(Utils::FileSystem::exists(filePath))
 		return filePath;
 
-	filePath = Utils::FileSystem::getHomePath() + "/.emulationstation/gamelists/" + mName + "/gamelist.xml";
+	filePath = Utils::FileSystem::getHomePath() + "/.openconsole/gamelists/" + mName + "/gamelist.xml";
 	if(forWrite) // make sure the directory exists if we're going to write to it, or crashes will happen
 		Utils::FileSystem::createDirectory(Utils::FileSystem::getParent(filePath));
 	if(forWrite || Utils::FileSystem::exists(filePath))
 		return filePath;
 
-	return "/etc/emulationstation/gamelists/" + mName + "/gamelist.xml";
+	return "/etc/openconsole/gamelists/" + mName + "/gamelist.xml";
 }
 
 std::string SystemData::getThemePath() const

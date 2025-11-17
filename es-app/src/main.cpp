@@ -223,8 +223,8 @@ bool parseArgs(int argc, char* argv[])
 				"\nGeneric switches:\n"
 				"--help, -h                     summon a sentient, angry tuba\n\n"
 				"--home PATH                    directory to use as home folder for\n"
-				"                               .emulationstation/es_settings.cfg, aso.\n"
-				"                               Subfolder .emulationstation/ will be created.\n"
+				"                               .openconsole/es_settings.cfg, aso.\n"
+				"                               Subfolder .openconsole/ will be created.\n"
 				"\nScrape mode:\n"
 				"--scrape                       scrape using command line interface\n\n"
 				"Note: Switches marked (p) will be persisted in es_settings.cfg when any\n"
@@ -242,7 +242,7 @@ bool verifyHomeFolderExists()
 {
 	//make sure the config directory exists
 	std::string home = Utils::FileSystem::getHomePath();
-	std::string configDir = home + "/.emulationstation";
+	std::string configDir = home + "/.openconsole";
 	if(!Utils::FileSystem::exists(configDir))
 	{
 		std::cout << "Creating config directory \"" << configDir << "\"\n";
@@ -334,14 +334,14 @@ int main(int argc, char* argv[])
 	FreeImage_Initialise();
 #endif
 
-	//if ~/.emulationstation doesn't exist and cannot be created, bail
+	//if ~/.openconsole doesn't exist and cannot be created, bail
 	if(!verifyHomeFolderExists())
 		return 1;
 
 	//start the logger
 	Log::init();
 	Log::open();
-	LOG(LogInfo) << "EmulationStation - v" << PROGRAM_VERSION_STRING << ", built " << PROGRAM_BUILT_STRING;
+	LOG(LogInfo) << "OpenConsole - v" << PROGRAM_VERSION_STRING << ", built " << PROGRAM_BUILT_STRING;
 
 	//always close the log on exit
 	atexit(&onExit);
