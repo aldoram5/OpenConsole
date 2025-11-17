@@ -7,6 +7,7 @@
 #include "Log.h"
 #include "Settings.h"
 #include "utils/FileSystemUtil.h"
+#include <ctime>
 
 using namespace OpenConsole;
 

@@ -7,6 +7,7 @@
 #include <signal.h>
 #include <fstream>
 #include <sstream>
+#include <algorithm>
 
 namespace OpenConsole
 {
