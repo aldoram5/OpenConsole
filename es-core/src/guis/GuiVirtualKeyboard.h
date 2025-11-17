@@ -75,6 +75,7 @@ private:
 	static const int KEYBOARD_COLS = 11;
 	std::string mKeys[KEYBOARD_ROWS][KEYBOARD_COLS];
 	std::string mKeysShift[KEYBOARD_ROWS][KEYBOARD_COLS];
+	std::shared_ptr<TextComponent> mKeyComponents[KEYBOARD_ROWS][KEYBOARD_COLS];
 
 	// Button highlighting
 	std::shared_ptr<ImageComponent> mCursor;

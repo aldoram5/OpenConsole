@@ -45,11 +45,15 @@ GuiVirtualKeyboard::GuiVirtualKeyboard(Window* window, const std::string& title,
 		{
 			std::string key = getKeyAt(row, col);
 			if (key.empty())
+			{
+				mKeyComponents[row][col] = nullptr;
 				continue;
+			}
 
 			auto keyText = std::make_shared<TextComponent>(mWindow, key,
 				Font::get(FONT_SIZE_MEDIUM), 0xAAAAAAFF, ALIGN_CENTER);
 			mKeyboardGrid->setEntry(keyText, Vector2i(col, row), false, false);
+			mKeyComponents[row][col] = keyText;
 		}
 	}
 
@@ -326,12 +330,9 @@ void GuiVirtualKeyboard::updateGrid()
 			if (key.empty())
 				continue;
 
-			auto entry = mKeyboardGrid->getEntry(Vector2i(col, row));
-			if (entry && entry->component)
+			if (mKeyComponents[row][col])
 			{
-				auto textComp = std::dynamic_pointer_cast<TextComponent>(entry->component);
-				if (textComp)
-					textComp->setText(key);
+				mKeyComponents[row][col]->setText(key);
 			}
 		}
 	}

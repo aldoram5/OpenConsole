@@ -33,13 +33,19 @@ endif(NOT WIN32)
 # macOS-specific: Check common locations if pkg-config didn't find VLC
 if(APPLE AND NOT VLC_VERSION)
   # Check Homebrew locations
-  find_path(VLC_INCLUDE_DIR
+  # First find the vlc.h file with PATH_SUFFIXES vlc
+  find_path(VLC_INCLUDE_DIR_INTERNAL
             NAMES vlc.h
             PATHS
               /usr/local/include
               /opt/homebrew/include
               /Applications/VLC.app/Contents/MacOS/include
             PATH_SUFFIXES vlc)
+
+  # VLC_INCLUDE_DIR should be the parent (so #include <vlc/vlc.h> works)
+  if(VLC_INCLUDE_DIR_INTERNAL)
+    get_filename_component(VLC_INCLUDE_DIR "${VLC_INCLUDE_DIR_INTERNAL}" DIRECTORY)
+  endif()
 
   find_library(VLC_LIBRARY_PATH
                NAMES vlc
@@ -54,6 +60,8 @@ if(APPLE AND NOT VLC_VERSION)
     # Assume version is OK if found via Homebrew (version check not available)
     set(VLC_VERSION_OK TRUE)
     message(STATUS "VLC library found via direct search (macOS)")
+    message(STATUS "  Include: ${VLC_INCLUDE_DIR}")
+    message(STATUS "  Library: ${VLC_LIBRARY_PATH}")
   else()
     set(VLC_FOUND FALSE)
     set(VLC_VERSION_OK FALSE)
