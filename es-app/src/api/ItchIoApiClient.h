@@ -6,6 +6,8 @@
 #include <vector>
 #include <functional>
 #include <memory>
+#include <curl/curl.h>
+#include <rapidjson/document.h>
 
 namespace OpenConsole
 {

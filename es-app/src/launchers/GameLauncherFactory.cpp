@@ -113,17 +113,17 @@ bool GameLauncherFactory::isRenpyGame(const std::string& dirPath)
 		return false;
 
 	// Check for renpy/ subdirectory
-	std::string renpyDir = Utils::FileSystem::combine(dirPath, "renpy");
+	std::string renpyDir = dirPath + "/renpy";
 	if (Utils::FileSystem::isDirectory(renpyDir))
 		return true;
 
 	// Check for common Ren'Py files
-	std::string gameDir = Utils::FileSystem::combine(dirPath, "game");
+	std::string gameDir = dirPath + "/game";
 	if (Utils::FileSystem::isDirectory(gameDir))
 	{
 		// Look for script.rpy or script.rpyc
-		std::string scriptRpy = Utils::FileSystem::combine(gameDir, "script.rpy");
-		std::string scriptRpyc = Utils::FileSystem::combine(gameDir, "script.rpyc");
+		std::string scriptRpy = gameDir + "/script.rpy";
+		std::string scriptRpyc = gameDir + "/script.rpyc";
 
 		if (Utils::FileSystem::exists(scriptRpy) || Utils::FileSystem::exists(scriptRpyc))
 			return true;
@@ -142,14 +142,14 @@ bool GameLauncherFactory::isElectronGame(const std::string& dirPath)
 	// - resources/app.asar
 	// - node_modules directory
 
-	std::string packageJson = Utils::FileSystem::combine(dirPath, "package.json");
+	std::string packageJson = dirPath + "/package.json";
 	if (Utils::FileSystem::exists(packageJson))
 		return true;
 
-	std::string resourcesDir = Utils::FileSystem::combine(dirPath, "resources");
+	std::string resourcesDir = dirPath + "/resources";
 	if (Utils::FileSystem::isDirectory(resourcesDir))
 	{
-		std::string appAsar = Utils::FileSystem::combine(resourcesDir, "app.asar");
+		std::string appAsar = resourcesDir + "/app.asar";
 		if (Utils::FileSystem::exists(appAsar))
 			return true;
 	}
