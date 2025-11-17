@@ -308,14 +308,86 @@ sudo systemctl status openconsole
 
 ### Building a Raspberry Pi Image
 
-Create a distributable image with OpenConsole pre-installed:
+Create a distributable image with OpenConsole pre-installed. There are multiple ways to build the image:
+
+#### Option 1: Download Pre-built Release (Recommended)
+
+The easiest option is to use the automated GitHub Actions releases:
 
 ```bash
+# Download latest release
+wget https://github.com/aldoram5/OpenConsole/releases/latest/download/openconsole-pi5-<version>.img.xz
+
+# Verify checksum
+wget https://github.com/aldoram5/OpenConsole/releases/latest/download/openconsole-pi5-<version>.img.xz.sha256
+sha256sum -c openconsole-pi5-<version>.img.xz.sha256
+```
+
+Releases are automatically created when you push a version tag:
+
+```bash
+git tag v1.0.0
+git push origin v1.0.0
+# GitHub Actions will build and publish the image
+```
+
+#### Option 2: Build with Docker (macOS/Windows)
+
+For local builds on non-Linux systems, use the Docker-based script:
+
+```bash
+# Requires Docker Desktop installed and running
+./system/build-pi-image-docker.sh
+
+# Output will be in ./output/openconsole-pi5-<date>.img.xz
+```
+
+This runs the build process inside a Linux container, so it works on macOS, Windows (WSL), and Linux.
+
+#### Option 3: Build on Linux Directly
+
+On a Linux system (Debian/Ubuntu), you can run the build script directly:
+
+```bash
+# Install dependencies
+sudo apt-get install -y wget xz-utils kpartx qemu-user-static parted
+
+# Build the image
 cd system
 sudo ./build-pi-image.sh
 ```
 
 This creates a compressed image file (`openconsole-pi5-YYYYMMDD.img.xz`) ready for flashing.
+
+#### Flashing the Image
+
+```bash
+# Linux
+xzcat openconsole-pi5-*.img.xz | sudo dd of=/dev/sdX bs=4M status=progress
+
+# macOS (using Raspberry Pi Imager)
+# 1. Open Raspberry Pi Imager
+# 2. Choose OS → Use custom → select the .img.xz file
+# 3. Choose Storage → select your SD card
+# 4. Write
+```
+
+#### Creating a New Release
+
+To create a new release with GitHub Actions:
+
+1. Tag your version:
+   ```bash
+   git tag v1.0.0
+   git push origin v1.0.0
+   ```
+
+2. GitHub Actions will automatically:
+   - Build the Raspberry Pi image
+   - Create a GitHub Release
+   - Attach the image file with checksums
+
+3. Monitor progress at: `https://github.com/aldoram5/OpenConsole/actions`
 
 ## Development
 
