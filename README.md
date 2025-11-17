@@ -150,14 +150,14 @@ make -j$(nproc)
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 
 # Install dependencies
-brew install cmake sdl2 freeimage freetype curl openssl sqlite boost rapidjson
+brew install cmake sdl2 freeimage freetype curl openssl sqlite boost rapidjson pugixml libvlc
 
-# Install VLC (for video support)
-brew install --cask vlc
-
-# Clone repository
+# Clone repository with submodules
 git clone --recursive https://github.com/aldoram5/OpenConsole.git
 cd OpenConsole
+
+# If you already cloned without --recursive, initialize submodules:
+# git submodule update --init --recursive
 
 # Create build directory
 mkdir build && cd build
@@ -172,7 +172,11 @@ cmake .. \
 make -j$(sysctl -n hw.ncpu)
 ```
 
-**Note:** On macOS, you may need to adjust library paths depending on your Homebrew installation. For Apple Silicon Macs, libraries are typically in `/opt/homebrew/`, while Intel Macs use `/usr/local/`.
+**macOS Build Notes:**
+- The `--recursive` flag is important to initialize git submodules (nanosvg, pugixml). If you skip this, you must run `git submodule update --init --recursive` separately.
+- If pugixml submodule is not initialized, the build system will look for it via Homebrew (`brew install pugixml`).
+- `libvlc` provides the VLC development libraries needed for video support (different from the VLC.app cask).
+- On Apple Silicon Macs, Homebrew libraries are in `/opt/homebrew/`, while Intel Macs use `/usr/local/`. The build system automatically searches both locations.
 
 ### Building on Raspberry Pi
 
