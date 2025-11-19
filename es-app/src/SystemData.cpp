@@ -270,9 +270,16 @@ bool SystemData::loadConfig(Window* window)
 
 	if (!Utils::FileSystem::exists(path))
 	{
-		LOG(LogError) << "es_systems.cfg file does not exist!";
+		LOG(LogInfo) << "es_systems.cfg file does not exist, creating default configuration...";
 		writeExampleConfig(getConfigPath(true));
-		return false;
+		// Update path to the newly created config file
+		path = getConfigPath(true);
+		// If it still doesn't exist after writing, something went wrong
+		if (!Utils::FileSystem::exists(path))
+		{
+			LOG(LogError) << "Failed to create default configuration file!";
+			return false;
+		}
 	}
 
 	pugi::xml_document doc;
@@ -394,46 +401,90 @@ void SystemData::writeExampleConfig(const std::string& path)
 {
 	std::ofstream file(path.c_str());
 
-	file << "<!-- This is the EmulationStation Systems configuration file.\n"
-			"All systems must be contained within the <systemList> tag.-->\n"
+	file << "<!-- This is the OpenConsole Systems configuration file.\n"
+			"All systems must be contained within the <systemList> tag.\n"
+			"\n"
+			"This default configuration includes common gaming systems.\n"
+			"Place your game ROMs in the corresponding folders under ~/Games/\n"
+			"\n"
+			"For more information, visit: https://github.com/aldoram5/OpenConsole\n"
+			"-->\n"
 			"\n"
 			"<systemList>\n"
-			"	<!-- Here's an example system to get you started. -->\n"
+			"\n"
+			"	<!-- Nintendo Entertainment System -->\n"
 			"	<system>\n"
-			"\n"
-			"		<!-- A short name, used internally. Traditionally lower-case. -->\n"
 			"		<name>nes</name>\n"
-			"\n"
-			"		<!-- A \"pretty\" name, displayed in menus and such. -->\n"
 			"		<fullname>Nintendo Entertainment System</fullname>\n"
-			"\n"
-			"		<!-- The path to start searching for ROMs in. '~' will be expanded to $HOME on Linux or %HOMEPATH% on Windows. -->\n"
-			"		<path>~/roms/nes</path>\n"
-			"\n"
-			"		<!-- A list of extensions to search for, delimited by any of the whitespace characters (\", \\r\\n\\t\").\n"
-			"		You MUST include the period at the start of the extension! It's also case sensitive. -->\n"
-			"		<extension>.nes .NES</extension>\n"
-			"\n"
-			"		<!-- The shell command executed when a game is selected. A few special tags are replaced if found in a command:\n"
-			"		%ROM% is replaced by a bash-special-character-escaped absolute path to the ROM.\n"
-			"		%BASENAME% is replaced by the \"base\" name of the ROM.  For example, \"/foo/bar.rom\" would have a basename of \"bar\". Useful for MAME.\n"
-			"		%ROM_RAW% is the raw, unescaped path to the ROM. -->\n"
-			"		<command>retroarch -L ~/cores/libretro-fceumm.so %ROM%</command>\n"
-			"\n"
-			"		<!-- The platform to use when scraping. You can see the full list of accepted platforms in src/PlatformIds.cpp.\n"
-			"		It's case sensitive, but everything is lowercase. This tag is optional.\n"
-			"		You can use multiple platforms too, delimited with any of the whitespace characters (\", \\r\\n\\t\"), eg: \"genesis, megadrive\" -->\n"
+			"		<path>~/Games/nes</path>\n"
+			"		<extension>.nes .NES .zip .ZIP</extension>\n"
+			"		<command>retroarch -L /usr/lib/libretro/fceumm_libretro.so %ROM%</command>\n"
 			"		<platform>nes</platform>\n"
-			"\n"
-			"		<!-- The theme to load from the current theme set.  See THEMES.md for more information.\n"
-			"		This tag is optional. If not set, it will default to the value of <name>. -->\n"
 			"		<theme>nes</theme>\n"
 			"	</system>\n"
+			"\n"
+			"	<!-- Super Nintendo Entertainment System -->\n"
+			"	<system>\n"
+			"		<name>snes</name>\n"
+			"		<fullname>Super Nintendo</fullname>\n"
+			"		<path>~/Games/snes</path>\n"
+			"		<extension>.smc .SMC .sfc .SFC .zip .ZIP</extension>\n"
+			"		<command>retroarch -L /usr/lib/libretro/snes9x_libretro.so %ROM%</command>\n"
+			"		<platform>snes</platform>\n"
+			"		<theme>snes</theme>\n"
+			"	</system>\n"
+			"\n"
+			"	<!-- Sega Genesis / Mega Drive -->\n"
+			"	<system>\n"
+			"		<name>genesis</name>\n"
+			"		<fullname>Sega Genesis</fullname>\n"
+			"		<path>~/Games/genesis</path>\n"
+			"		<extension>.md .MD .smd .SMD .bin .BIN .gen .GEN .zip .ZIP</extension>\n"
+			"		<command>retroarch -L /usr/lib/libretro/genesis_plus_gx_libretro.so %ROM%</command>\n"
+			"		<platform>genesis</platform>\n"
+			"		<theme>genesis</theme>\n"
+			"	</system>\n"
+			"\n"
+			"	<!-- Game Boy -->\n"
+			"	<system>\n"
+			"		<name>gb</name>\n"
+			"		<fullname>Game Boy</fullname>\n"
+			"		<path>~/Games/gb</path>\n"
+			"		<extension>.gb .GB .gbc .GBC .zip .ZIP</extension>\n"
+			"		<command>retroarch -L /usr/lib/libretro/gambatte_libretro.so %ROM%</command>\n"
+			"		<platform>gb</platform>\n"
+			"		<theme>gb</theme>\n"
+			"	</system>\n"
+			"\n"
+			"	<!-- Game Boy Advance -->\n"
+			"	<system>\n"
+			"		<name>gba</name>\n"
+			"		<fullname>Game Boy Advance</fullname>\n"
+			"		<path>~/Games/gba</path>\n"
+			"		<extension>.gba .GBA .zip .ZIP</extension>\n"
+			"		<command>retroarch -L /usr/lib/libretro/mgba_libretro.so %ROM%</command>\n"
+			"		<platform>gba</platform>\n"
+			"		<theme>gba</theme>\n"
+			"	</system>\n"
+			"\n"
+			"	<!-- PlayStation 1 -->\n"
+			"	<system>\n"
+			"		<name>psx</name>\n"
+			"		<fullname>PlayStation</fullname>\n"
+			"		<path>~/Games/psx</path>\n"
+			"		<extension>.cue .CUE .ccd .CCD .pbp .PBP .chd .CHD</extension>\n"
+			"		<command>retroarch -L /usr/lib/libretro/pcsx_rearmed_libretro.so %ROM%</command>\n"
+			"		<platform>psx</platform>\n"
+			"		<theme>psx</theme>\n"
+			"	</system>\n"
+			"\n"
 			"</systemList>\n";
 
 	file.close();
 
-	LOG(LogError) << "Example config written!  Go read it at \"" << path << "\"!";
+	LOG(LogInfo) << "Default systems configuration created at: " << path;
+	LOG(LogInfo) << "You can customize this file to add more systems or modify existing ones.";
+	LOG(LogInfo) << "Place your game ROMs in ~/Games/<system>/ directories.";
 }
 
 void SystemData::deleteSystems()
