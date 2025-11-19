@@ -586,7 +586,7 @@ const std::shared_ptr<ThemeData>& ThemeData::getDefault()
 	{
 		theme = std::shared_ptr<ThemeData>(new ThemeData());
 
-		const std::string path = Utils::FileSystem::getHomePath() + "/.emulationstation/es_theme_default.xml";
+		const std::string path = Utils::FileSystem::getHomePath() + "/.openconsole/es_theme_default.xml";
 		if(Utils::FileSystem::exists(path))
 		{
 			try
@@ -640,8 +640,8 @@ std::map<std::string, ThemeSet> ThemeData::getThemeSets()
 	static const size_t pathCount = 2;
 	std::string paths[pathCount] =
 	{
-		"/etc/emulationstation/themes",
-		Utils::FileSystem::getHomePath() + "/.emulationstation/themes"
+		"/etc/openconsole/themes",
+		Utils::FileSystem::getHomePath() + "/.openconsole/themes"
 	};
 
 	for(size_t i = 0; i < pathCount; i++)

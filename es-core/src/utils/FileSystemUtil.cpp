@@ -173,8 +173,8 @@ namespace Utils
 			if(homePath.length())
 				return homePath;
 
-			// check if "getExePath()/.emulationstation/es_systems.cfg" exists
-			if(Utils::FileSystem::exists(getExePath() + "/.emulationstation/es_systems.cfg"))
+			// check if "getExePath()/.openconsole/es_systems.cfg" exists
+			if(Utils::FileSystem::exists(getExePath() + "/.openconsole/es_systems.cfg"))
 				homePath = getExePath();
 
 			// check for HOME environment variable

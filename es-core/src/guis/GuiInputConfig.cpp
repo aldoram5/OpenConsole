@@ -246,19 +246,27 @@ void GuiInputConfig::update(int deltaTime)
 
 		if(mHeldTime >= HOLD_TO_SKIP_MS)
 		{
-			setNotDefined(mMappings.at(mHeldInputId));
-			clearAssignment(mHeldInputId);
+			// Bounds check before accessing mMappings
+			if(mHeldInputId >= 0 && mHeldInputId < (int)mMappings.size())
+			{
+				setNotDefined(mMappings.at(mHeldInputId));
+				clearAssignment(mHeldInputId);
+			}
 			mHoldingInput = false;
 			rowDone();
 		}else{
 			if(prevSec != curSec)
 			{
 				// crossed the second boundary, update text
-				const auto& text = mMappings.at(mHeldInputId);
-				std::stringstream ss;
-				ss << "HOLD FOR " << HOLD_TO_SKIP_MS/1000 - curSec << "S TO SKIP";
-				text->setText(ss.str());
-				text->setColor(0x777777FF);
+				// Bounds check before accessing mMappings
+				if(mHeldInputId >= 0 && mHeldInputId < (int)mMappings.size())
+				{
+					const auto& text = mMappings.at(mHeldInputId);
+					std::stringstream ss;
+					ss << "HOLD FOR " << HOLD_TO_SKIP_MS/1000 - curSec << "S TO SKIP";
+					text->setText(ss.str());
+					text->setColor(0x777777FF);
+				}
 			}
 		}
 	}
@@ -278,7 +286,19 @@ void GuiInputConfig::rowDone()
 			mGrid.moveCursor(Vector2i(0, 1));
 		}else{
 			// on another one
-			setPress(mMappings.at(mList->getCursorId()));
+			// Bounds check to prevent crash if cursor ID is invalid
+			int cursorId = mList->getCursorId();
+			if(cursorId >= 0 && cursorId < (int)mMappings.size())
+			{
+				setPress(mMappings.at(cursorId));
+			}
+			else
+			{
+				LOG(LogError) << "Invalid cursor ID " << cursorId << " (mappings size: " << mMappings.size() << ")";
+				// Stop configuring to avoid crash
+				mConfiguringAll = false;
+				mConfiguringRow = false;
+			}
 		}
 	}else{
 		// only configuring one row, so stop

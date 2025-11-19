@@ -1,0 +1,46 @@
+# Site settings
+title: OpenConsole Documentation
+description: Open-source gaming console OS for indie games
+baseurl: "/OpenConsole"
+url: "https://aldoram5.github.io"
+
+# Theme
+theme: jekyll-theme-cayman
+
+# Build settings
+markdown: kramdown
+kramdown:
+  input: GFM
+  syntax_highlighter: rouge
+
+# Plugins
+plugins:
+  - jekyll-seo-tag
+  - jekyll-sitemap
+  - jekyll-feed
+  - jekyll-relative-links
+
+# Relative links
+relative_links:
+  enabled: true
+  collections: false
+
+# Collections
+collections:
+  guides:
+    output: true
+    permalink: /guides/:name
+
+# Exclude from build
+exclude:
+  - Gemfile
+  - Gemfile.lock
+  - vendor
+  - README.md
+  - architecture/*.md
+  - CHANGELOG.md
+
+# Include these files
+include:
+  - guides/README.md
+  - guides/*.md

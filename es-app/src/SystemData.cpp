@@ -270,9 +270,30 @@ bool SystemData::loadConfig(Window* window)
 
 	if (!Utils::FileSystem::exists(path))
 	{
-		LOG(LogError) << "es_systems.cfg file does not exist!";
+		LOG(LogInfo) << "es_systems.cfg file does not exist, creating default configuration...";
+
+		// Ensure the config directory exists before writing
+		std::string configDir = Utils::FileSystem::getParent(getConfigPath(true));
+		if (!Utils::FileSystem::exists(configDir))
+		{
+			LOG(LogInfo) << "Creating config directory: " << configDir;
+			Utils::FileSystem::createDirectory(configDir);
+		}
+
 		writeExampleConfig(getConfigPath(true));
-		return false;
+
+		// Update path to the newly created config file
+		path = getConfigPath(true);
+
+		// Verify the file was created successfully
+		if (!Utils::FileSystem::exists(path))
+		{
+			LOG(LogError) << "Failed to create default configuration file at: " << path;
+			LOG(LogError) << "Please check directory permissions for: " << configDir;
+			return false;
+		}
+
+		LOG(LogInfo) << "Successfully created default configuration at: " << path;
 	}
 
 	pugi::xml_document doc;
@@ -392,48 +413,130 @@ bool SystemData::loadConfig(Window* window)
 
 void SystemData::writeExampleConfig(const std::string& path)
 {
-	std::ofstream file(path.c_str());
+	LOG(LogInfo) << "Writing default config to: " << path;
 
-	file << "<!-- This is the EmulationStation Systems configuration file.\n"
-			"All systems must be contained within the <systemList> tag.-->\n"
+	// Ensure parent directory exists
+	std::string parentDir = Utils::FileSystem::getParent(path);
+	if (!Utils::FileSystem::exists(parentDir))
+	{
+		LOG(LogInfo) << "Creating parent directory: " << parentDir;
+		Utils::FileSystem::createDirectory(parentDir);
+	}
+
+	std::ofstream file(path.c_str(), std::ios::out | std::ios::trunc);
+
+	if (!file.is_open())
+	{
+		LOG(LogError) << "Failed to open file for writing: " << path;
+		return;
+	}
+
+	file << "<!-- This is the OpenConsole Systems configuration file.\n"
+			"\n"
+			"OpenConsole is designed for indie games and native game formats:\n"
+			"- itch.io games (downloaded via built-in integration)\n"
+			"- AppImage games\n"
+			"- Ren'Py visual novels\n"
+			"- Electron apps\n"
+			"- Native Linux executables\n"
+			"\n"
+			"The system will automatically detect game types when scanning directories.\n"
+			"Simply organize your games into ~/Games/ subdirectories.\n"
+			"\n"
+			"For more information: https://github.com/aldoram5/OpenConsole\n"
+			"-->\n"
 			"\n"
 			"<systemList>\n"
-			"	<!-- Here's an example system to get you started. -->\n"
+			"\n"
+			"	<!-- Indie Games Collection -->\n"
 			"	<system>\n"
-			"\n"
-			"		<!-- A short name, used internally. Traditionally lower-case. -->\n"
-			"		<name>nes</name>\n"
-			"\n"
-			"		<!-- A \"pretty\" name, displayed in menus and such. -->\n"
-			"		<fullname>Nintendo Entertainment System</fullname>\n"
-			"\n"
-			"		<!-- The path to start searching for ROMs in. '~' will be expanded to $HOME on Linux or %HOMEPATH% on Windows. -->\n"
-			"		<path>~/roms/nes</path>\n"
-			"\n"
-			"		<!-- A list of extensions to search for, delimited by any of the whitespace characters (\", \\r\\n\\t\").\n"
-			"		You MUST include the period at the start of the extension! It's also case sensitive. -->\n"
-			"		<extension>.nes .NES</extension>\n"
-			"\n"
-			"		<!-- The shell command executed when a game is selected. A few special tags are replaced if found in a command:\n"
-			"		%ROM% is replaced by a bash-special-character-escaped absolute path to the ROM.\n"
-			"		%BASENAME% is replaced by the \"base\" name of the ROM.  For example, \"/foo/bar.rom\" would have a basename of \"bar\". Useful for MAME.\n"
-			"		%ROM_RAW% is the raw, unescaped path to the ROM. -->\n"
-			"		<command>retroarch -L ~/cores/libretro-fceumm.so %ROM%</command>\n"
-			"\n"
-			"		<!-- The platform to use when scraping. You can see the full list of accepted platforms in src/PlatformIds.cpp.\n"
-			"		It's case sensitive, but everything is lowercase. This tag is optional.\n"
-			"		You can use multiple platforms too, delimited with any of the whitespace characters (\", \\r\\n\\t\"), eg: \"genesis, megadrive\" -->\n"
-			"		<platform>nes</platform>\n"
-			"\n"
-			"		<!-- The theme to load from the current theme set.  See THEMES.md for more information.\n"
-			"		This tag is optional. If not set, it will default to the value of <name>. -->\n"
-			"		<theme>nes</theme>\n"
+			"		<name>indie</name>\n"
+			"		<fullname>Indie Games</fullname>\n"
+			"		<path>~/Games/indie</path>\n"
+			"		<extension>.AppImage .appimage .sh .x86_64 .x86</extension>\n"
+			"		<command>%ROM%</command>\n"
+			"		<platform>pc</platform>\n"
+			"		<theme>pc</theme>\n"
 			"	</system>\n"
+			"\n"
+			"	<!-- Visual Novels (Ren'Py) -->\n"
+			"	<system>\n"
+			"		<name>visualnovels</name>\n"
+			"		<fullname>Visual Novels</fullname>\n"
+			"		<path>~/Games/visualnovels</path>\n"
+			"		<extension>.sh .py</extension>\n"
+			"		<command>%ROM%</command>\n"
+			"		<platform>pc</platform>\n"
+			"		<theme>pc</theme>\n"
+			"	</system>\n"
+			"\n"
+			"	<!-- itch.io Games -->\n"
+			"	<!-- Games downloaded from itch.io are automatically added to the database. -->\n"
+			"	<!-- Configure itch.io in: Main Menu → OpenConsole Settings → Plugins -->\n"
+			"	<system>\n"
+			"		<name>itchio</name>\n"
+			"		<fullname>itch.io Games</fullname>\n"
+			"		<path>~/Games/itchio</path>\n"
+			"		<extension>.AppImage .appimage .sh .x86_64 .x86</extension>\n"
+			"		<command>%ROM%</command>\n"
+			"		<platform>pc</platform>\n"
+			"		<theme>pc</theme>\n"
+			"	</system>\n"
+			"\n"
+			"	<!-- All Games (catch-all for organization) -->\n"
+			"	<system>\n"
+			"		<name>games</name>\n"
+			"		<fullname>All Games</fullname>\n"
+			"		<path>~/Games</path>\n"
+			"		<extension>.AppImage .appimage .sh .x86_64 .x86 .py</extension>\n"
+			"		<command>%ROM%</command>\n"
+			"		<platform>pc</platform>\n"
+			"		<theme>pc</theme>\n"
+			"	</system>\n"
+			"\n"
+			"	<!-- Optional: Retro Gaming (if you want to use emulators) -->\n"
+			"	<!-- IMPORTANT: Emulation is NOT the primary focus of OpenConsole. -->\n"
+			"	<!-- These entries are provided as examples but require you to: -->\n"
+			"	<!--   1. Install RetroArch or other emulators manually -->\n"
+			"	<!--   2. Install the required cores/emulators -->\n"
+			"	<!--   3. Configure the command paths below -->\n"
+			"	<!-- Uncomment and modify as needed: -->\n"
+			"	<!--\n"
+			"	<system>\n"
+			"		<name>retro</name>\n"
+			"		<fullname>Retro Games</fullname>\n"
+			"		<path>~/Games/retro</path>\n"
+			"		<extension>.zip .ZIP</extension>\n"
+			"		<command>retroarch -L /usr/lib/libretro/YOUR_CORE_HERE.so %ROM%</command>\n"
+			"		<platform>pc</platform>\n"
+			"		<theme>retro</theme>\n"
+			"	</system>\n"
+			"	-->\n"
+			"\n"
 			"</systemList>\n";
 
+	file.flush();  // Ensure data is written to disk
 	file.close();
 
-	LOG(LogError) << "Example config written!  Go read it at \"" << path << "\"!";
+	// Verify the file was written successfully
+	if (file.fail())
+	{
+		LOG(LogError) << "Error writing to config file: " << path;
+		return;
+	}
+
+	// Double-check file exists and is readable
+	if (Utils::FileSystem::exists(path))
+	{
+		LOG(LogInfo) << "Default systems configuration created successfully at: " << path;
+		LOG(LogInfo) << "OpenConsole is ready to scan for indie games!";
+		LOG(LogInfo) << "Place games in ~/Games/ or use the itch.io integration.";
+		LOG(LogInfo) << "For itch.io setup: Main Menu → OpenConsole Settings → Plugins";
+	}
+	else
+	{
+		LOG(LogError) << "Config file write appeared to succeed but file doesn't exist: " << path;
+	}
 }
 
 void SystemData::deleteSystems()
@@ -447,11 +550,11 @@ void SystemData::deleteSystems()
 
 std::string SystemData::getConfigPath(bool forWrite)
 {
-	std::string path = Utils::FileSystem::getHomePath() + "/.emulationstation/es_systems.cfg";
+	std::string path = Utils::FileSystem::getHomePath() + "/.openconsole/es_systems.cfg";
 	if(forWrite || Utils::FileSystem::exists(path))
 		return path;
 
-	return "/etc/emulationstation/es_systems.cfg";
+	return "/etc/openconsole/es_systems.cfg";
 }
 
 bool SystemData::isVisible()
@@ -497,13 +600,13 @@ std::string SystemData::getGamelistPath(bool forWrite) const
 	if(Utils::FileSystem::exists(filePath))
 		return filePath;
 
-	filePath = Utils::FileSystem::getHomePath() + "/.emulationstation/gamelists/" + mName + "/gamelist.xml";
+	filePath = Utils::FileSystem::getHomePath() + "/.openconsole/gamelists/" + mName + "/gamelist.xml";
 	if(forWrite) // make sure the directory exists if we're going to write to it, or crashes will happen
 		Utils::FileSystem::createDirectory(Utils::FileSystem::getParent(filePath));
 	if(forWrite || Utils::FileSystem::exists(filePath))
 		return filePath;
 
-	return "/etc/emulationstation/gamelists/" + mName + "/gamelist.xml";
+	return "/etc/openconsole/gamelists/" + mName + "/gamelist.xml";
 }
 
 std::string SystemData::getThemePath() const

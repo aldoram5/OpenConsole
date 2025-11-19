@@ -223,8 +223,8 @@ bool parseArgs(int argc, char* argv[])
 				"\nGeneric switches:\n"
 				"--help, -h                     summon a sentient, angry tuba\n\n"
 				"--home PATH                    directory to use as home folder for\n"
-				"                               .emulationstation/es_settings.cfg, aso.\n"
-				"                               Subfolder .emulationstation/ will be created.\n"
+				"                               .openconsole/es_settings.cfg, aso.\n"
+				"                               Subfolder .openconsole/ will be created.\n"
 				"\nScrape mode:\n"
 				"--scrape                       scrape using command line interface\n\n"
 				"Note: Switches marked (p) will be persisted in es_settings.cfg when any\n"
@@ -242,7 +242,7 @@ bool verifyHomeFolderExists()
 {
 	//make sure the config directory exists
 	std::string home = Utils::FileSystem::getHomePath();
-	std::string configDir = home + "/.emulationstation";
+	std::string configDir = home + "/.openconsole";
 	if(!Utils::FileSystem::exists(configDir))
 	{
 		std::cout << "Creating config directory \"" << configDir << "\"\n";
@@ -266,18 +266,18 @@ bool loadSystemConfigFile(Window* window, const char** errorString)
 	{
 		LOG(LogError) << "Error while parsing systems configuration file!";
 		*errorString = "IT LOOKS LIKE YOUR SYSTEMS CONFIGURATION FILE HAS NOT BEEN SET UP OR IS INVALID. YOU'LL NEED TO DO THIS BY HAND, UNFORTUNATELY.\n\n"
-			"VISIT EMULATIONSTATION.ORG FOR MORE INFORMATION.";
+			"VISIT https://github.com/aldoram5/OpenConsole FOR MORE INFORMATION.";
 		return false;
 	}
 
 	if(SystemData::sSystemVector.size() == 0)
 	{
-		LOG(LogError) << "No systems found! Does at least one system have a game present? (check that extensions match!)\n(Also, make sure you've updated your es_systems.cfg for XML!)";
-		*errorString = "WE CAN'T FIND ANY SYSTEMS!\n"
-			"CHECK THAT YOUR PATHS ARE CORRECT IN THE SYSTEMS CONFIGURATION FILE, "
-			"AND YOUR GAME DIRECTORY HAS AT LEAST ONE GAME WITH THE CORRECT EXTENSION.\n\n"
-			"VISIT EMULATIONSTATION.ORG FOR MORE INFORMATION.";
-		return false;
+		LOG(LogWarning) << "No systems found with games! This is normal on first boot.";
+		LOG(LogInfo) << "To add games: Place ROM files in ~/Games/<system>/ directories (e.g., ~/Games/nes/)";
+		LOG(LogInfo) << "Supported systems are listed in ~/.openconsole/es_systems.cfg";
+		LOG(LogInfo) << "You can still access OpenConsole - games will appear when you add them.";
+		// Don't show error dialog - let user proceed to UI
+		// They can add games later and restart or reload
 	}
 
 	return true;
@@ -334,14 +334,14 @@ int main(int argc, char* argv[])
 	FreeImage_Initialise();
 #endif
 
-	//if ~/.emulationstation doesn't exist and cannot be created, bail
+	//if ~/.openconsole doesn't exist and cannot be created, bail
 	if(!verifyHomeFolderExists())
 		return 1;
 
 	//start the logger
 	Log::init();
 	Log::open();
-	LOG(LogInfo) << "EmulationStation - v" << PROGRAM_VERSION_STRING << ", built " << PROGRAM_BUILT_STRING;
+	LOG(LogInfo) << "OpenConsole - v" << PROGRAM_VERSION_STRING << ", built " << PROGRAM_BUILT_STRING;
 
 	//always close the log on exit
 	atexit(&onExit);

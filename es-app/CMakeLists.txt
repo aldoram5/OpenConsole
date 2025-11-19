@@ -217,7 +217,7 @@ SET(CPACK_DEBIAN_PACKAGE_PRIORITY "extra")
 SET(CPACK_DEBIAN_PACKAGE_DEPENDS "libc6, libsdl2-2.0-0, libfreeimage3, libfreetype6, libcurl3, libasound2")
 SET(CPACK_DEBIAN_PACKAGE_BUILDS_DEPENDS "debhelper (>= 8.0.0), cmake, g++ (>= 4.8), libsdl2-dev, libfreeimage-dev, libfreetype6-dev, libcurl4-openssl-dev, libasound2-dev, libgl1-mesa-dev, rapidjson-dev")
 
-SET(CPACK_PACKAGE_VENDOR "emulationstation.org")
+SET(CPACK_PACKAGE_VENDOR "github.com/aldoram5/OpenConsole")
 SET(CPACK_PACKAGE_VERSION "2.0.0~rc1")
 SET(CPACK_PACKAGE_VERSION_MAJOR "2")
 SET(CPACK_PACKAGE_VERSION_MINOR "0")

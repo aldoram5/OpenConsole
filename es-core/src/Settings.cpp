@@ -111,9 +111,9 @@ void Settings::setDefaults()
 
 	mIntMap["ScreenSaverSwapMediaTimeout"] = 10000;
 	mBoolMap["SlideshowScreenSaverStretch"] = false;
-	mStringMap["SlideshowScreenSaverBackgroundAudioFile"] = Utils::FileSystem::getHomePath() + "/.emulationstation/slideshow/audio/slideshow_bg.wav";
+	mStringMap["SlideshowScreenSaverBackgroundAudioFile"] = Utils::FileSystem::getHomePath() + "/.openconsole/slideshow/audio/slideshow_bg.wav";
 	mBoolMap["SlideshowScreenSaverCustomMediaSource"] = false;
-	mStringMap["SlideshowScreenSaverMediaDir"] = Utils::FileSystem::getHomePath() + "/.emulationstation/slideshow/media";
+	mStringMap["SlideshowScreenSaverMediaDir"] = Utils::FileSystem::getHomePath() + "/.openconsole/slideshow/media";
 	mStringMap["SlideshowScreenSaverImageFilter"] = ".png,.jpg";
 	mStringMap["SlideshowScreenSaverVideoFilter"] = ".mp4,.avi";
 	mBoolMap["SlideshowScreenSaverRecurse"] = false;
@@ -207,7 +207,7 @@ void saveMap(pugi::xml_document& doc, std::map<K, V>& map, const char* type)
 void Settings::saveFile()
 {
 	LOG(LogDebug) << "Settings::saveFile() : Saving Settings to file.";
-	const std::string path = Utils::FileSystem::getHomePath() + "/.emulationstation/es_settings.cfg";
+	const std::string path = Utils::FileSystem::getHomePath() + "/.openconsole/es_settings.cfg";
 
 	pugi::xml_document doc;
 
@@ -245,7 +245,7 @@ void Settings::saveFile()
 
 void Settings::loadFile()
 {
-	const std::string path = Utils::FileSystem::getHomePath() + "/.emulationstation/es_settings.cfg";
+	const std::string path = Utils::FileSystem::getHomePath() + "/.openconsole/es_settings.cfg";
 
 	if(!Utils::FileSystem::exists(path))
 		return;
