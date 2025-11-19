@@ -271,15 +271,29 @@ bool SystemData::loadConfig(Window* window)
 	if (!Utils::FileSystem::exists(path))
 	{
 		LOG(LogInfo) << "es_systems.cfg file does not exist, creating default configuration...";
+
+		// Ensure the config directory exists before writing
+		std::string configDir = Utils::FileSystem::getParent(getConfigPath(true));
+		if (!Utils::FileSystem::exists(configDir))
+		{
+			LOG(LogInfo) << "Creating config directory: " << configDir;
+			Utils::FileSystem::createDirectory(configDir);
+		}
+
 		writeExampleConfig(getConfigPath(true));
+
 		// Update path to the newly created config file
 		path = getConfigPath(true);
-		// If it still doesn't exist after writing, something went wrong
+
+		// Verify the file was created successfully
 		if (!Utils::FileSystem::exists(path))
 		{
-			LOG(LogError) << "Failed to create default configuration file!";
+			LOG(LogError) << "Failed to create default configuration file at: " << path;
+			LOG(LogError) << "Please check directory permissions for: " << configDir;
 			return false;
 		}
+
+		LOG(LogInfo) << "Successfully created default configuration at: " << path;
 	}
 
 	pugi::xml_document doc;
@@ -399,7 +413,23 @@ bool SystemData::loadConfig(Window* window)
 
 void SystemData::writeExampleConfig(const std::string& path)
 {
-	std::ofstream file(path.c_str());
+	LOG(LogInfo) << "Writing default config to: " << path;
+
+	// Ensure parent directory exists
+	std::string parentDir = Utils::FileSystem::getParent(path);
+	if (!Utils::FileSystem::exists(parentDir))
+	{
+		LOG(LogInfo) << "Creating parent directory: " << parentDir;
+		Utils::FileSystem::createDirectory(parentDir);
+	}
+
+	std::ofstream file(path.c_str(), std::ios::out | std::ios::trunc);
+
+	if (!file.is_open())
+	{
+		LOG(LogError) << "Failed to open file for writing: " << path;
+		return;
+	}
 
 	file << "<!-- This is the OpenConsole Systems configuration file.\n"
 			"\n"
@@ -485,12 +515,28 @@ void SystemData::writeExampleConfig(const std::string& path)
 			"\n"
 			"</systemList>\n";
 
+	file.flush();  // Ensure data is written to disk
 	file.close();
 
-	LOG(LogInfo) << "Default systems configuration created at: " << path;
-	LOG(LogInfo) << "OpenConsole is ready to scan for indie games!";
-	LOG(LogInfo) << "Place games in ~/Games/ or use the itch.io integration.";
-	LOG(LogInfo) << "For itch.io setup: Main Menu → OpenConsole Settings → Plugins";
+	// Verify the file was written successfully
+	if (file.fail())
+	{
+		LOG(LogError) << "Error writing to config file: " << path;
+		return;
+	}
+
+	// Double-check file exists and is readable
+	if (Utils::FileSystem::exists(path))
+	{
+		LOG(LogInfo) << "Default systems configuration created successfully at: " << path;
+		LOG(LogInfo) << "OpenConsole is ready to scan for indie games!";
+		LOG(LogInfo) << "Place games in ~/Games/ or use the itch.io integration.";
+		LOG(LogInfo) << "For itch.io setup: Main Menu → OpenConsole Settings → Plugins";
+	}
+	else
+	{
+		LOG(LogError) << "Config file write appeared to succeed but file doesn't exist: " << path;
+	}
 }
 
 void SystemData::deleteSystems()
