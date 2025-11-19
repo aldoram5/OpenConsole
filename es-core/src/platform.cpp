@@ -72,7 +72,7 @@ void processQuitMode()
 	switch (quitMode)
 	{
 	case QuitMode::RESTART:
-		LOG(LogInfo) << "Restarting EmulationStation";
+		LOG(LogInfo) << "Restarting OpenConsole";
 		touch("/tmp/es-restart");
 		break;
 	case QuitMode::REBOOT:

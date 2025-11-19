@@ -266,7 +266,7 @@ bool loadSystemConfigFile(Window* window, const char** errorString)
 	{
 		LOG(LogError) << "Error while parsing systems configuration file!";
 		*errorString = "IT LOOKS LIKE YOUR SYSTEMS CONFIGURATION FILE HAS NOT BEEN SET UP OR IS INVALID. YOU'LL NEED TO DO THIS BY HAND, UNFORTUNATELY.\n\n"
-			"VISIT https://github.com/aldoram5/OpenConsole FOR MORE INFORMATION.";
+			"VISIT https://aldoram5.github.io/OpenConsole/ FOR MORE INFORMATION.";
 		return false;
 	}
 
@@ -495,7 +495,7 @@ int main(int argc, char* argv[])
 
 	ProfileDump();
 
-	LOG(LogInfo) << "EmulationStation cleanly shutting down.";
+	LOG(LogInfo) << "OpenConsole cleanly shutting down.";
 
 	return 0;
 }

@@ -26,7 +26,7 @@ void handle_interrupt_signal(int /*p*/)
 
 int run_scraper_cmdline()
 {
-	out << "EmulationStation scraper\n";
+	out << "OpenConsole scraper\n";
 	out << "========================\n";
 	out << "\n";
 

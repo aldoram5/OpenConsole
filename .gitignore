@@ -15,7 +15,8 @@
 *.d
 
 # Compiled executable
-emulationstation
+openconsole
+
 
 # build directory
 build
