@@ -378,7 +378,8 @@ bool SystemData::loadConfig(Window* window)
 			pThreadPool->wait([window, &processedSystem, systemCount, &systemsNames]
 			{
 				int px = processedSystem - 1;
-				if (px >= 0 && px < systemsNames.size())
+				// Check if systemsNames is not empty and px is within bounds
+				if (!systemsNames.empty() && px >= 0 && px < systemsNames.size())
 					window->renderLoadingScreen(systemsNames.at(px), (float)px / (float)(systemCount + 1));
 			}, 10);
 		}
@@ -515,13 +516,21 @@ void SystemData::writeExampleConfig(const std::string& path)
 			"\n"
 			"</systemList>\n";
 
-	file.flush();  // Ensure data is written to disk
-	file.close();
+	// Flush and verify write was successful BEFORE closing
+	file.flush();
 
-	// Verify the file was written successfully
 	if (file.fail())
 	{
-		LOG(LogError) << "Error writing to config file: " << path;
+		LOG(LogError) << "Error flushing data to config file: " << path;
+		file.close();
+		return;
+	}
+
+	file.close();
+
+	if (file.fail())
+	{
+		LOG(LogError) << "Error closing config file: " << path;
 		return;
 	}
 
@@ -536,6 +545,7 @@ void SystemData::writeExampleConfig(const std::string& path)
 	else
 	{
 		LOG(LogError) << "Config file write appeared to succeed but file doesn't exist: " << path;
+		LOG(LogError) << "Please check directory permissions for: " << parentDir;
 	}
 }
 
