@@ -5,6 +5,7 @@
 #include "animations/LaunchAnimation.h"
 #include "animations/MoveCameraAnimation.h"
 #include "guis/GuiMenu.h"
+#include "guis/GuiMsgBox.h"
 #include "views/gamelist/DetailedGameListView.h"
 #include "views/gamelist/IGameListView.h"
 #include "views/gamelist/GridGameListView.h"
@@ -46,6 +47,32 @@ ViewController::~ViewController()
 
 void ViewController::goToStart()
 {
+	// Check if we have any systems loaded
+	if (SystemData::sSystemVector.empty())
+	{
+		LOG(LogInfo) << "No systems found. OpenConsole is ready for game setup.";
+		LOG(LogInfo) << "You can:";
+		LOG(LogInfo) << "  - Set up itch.io credentials in Settings → Plugins";
+		LOG(LogInfo) << "  - Load games from USB";
+		LOG(LogInfo) << "  - Add games to ~/Games/ directory";
+		mState.viewing = NOTHING;
+
+		// Show a welcome message to guide the user
+		mWindow->pushGui(new GuiMsgBox(mWindow,
+			"WELCOME TO OPENCONSOLE!\n\n"
+			"No games found yet. This is normal on first startup.\n\n"
+			"To get started:\n"
+			"• Press START to open the menu\n"
+			"• Go to OpenConsole Settings\n"
+			"• Configure itch.io to connect your account\n"
+			"• Scan for games\n\n"
+			"You can also add games manually to:\n"
+			"~/Games/<system>/ directories\n\n"
+			"Press START or OK to continue.",
+			"OK", nullptr));
+		return;
+	}
+
 	// If specific system is requested, go directly to the game list
 	auto requestedSystem = Settings::getInstance()->getString("StartupSystem");
 	if("" != requestedSystem && "retropie" != requestedSystem)
@@ -594,12 +621,18 @@ void ViewController::reloadAll(bool themeChanged)
 		mCurrentView = getGameListView(mState.getSystem());
 	}else if(mState.viewing == SYSTEM_SELECT)
 	{
-		SystemData* system = mState.getSystem();
-		goToSystemView(SystemData::sSystemVector.front());
-		mSystemListView->goToSystem(system, false);
-		mCurrentView = mSystemListView;
+		if (!SystemData::sSystemVector.empty())
+		{
+			SystemData* system = mState.getSystem();
+			goToSystemView(SystemData::sSystemVector.front());
+			mSystemListView->goToSystem(system, false);
+			mCurrentView = mSystemListView;
+		}
 	}else{
-		goToSystemView(SystemData::sSystemVector.front());
+		if (!SystemData::sSystemVector.empty())
+		{
+			goToSystemView(SystemData::sSystemVector.front());
+		}
 	}
 
 	updateHelpPrompts();

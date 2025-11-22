@@ -277,7 +277,12 @@ bool SystemData::loadConfig(Window* window)
 		if (!Utils::FileSystem::exists(configDir))
 		{
 			LOG(LogInfo) << "Creating config directory: " << configDir;
-			Utils::FileSystem::createDirectory(configDir);
+			if (!Utils::FileSystem::createDirectory(configDir))
+			{
+				LOG(LogWarning) << "Could not create config directory: " << configDir;
+				LOG(LogWarning) << "OpenConsole will continue without a systems configuration file.";
+				LOG(LogWarning) << "Please ensure proper filesystem permissions.";
+			}
 		}
 
 		writeExampleConfig(getConfigPath(true));
@@ -288,12 +293,25 @@ bool SystemData::loadConfig(Window* window)
 		// Verify the file was created successfully
 		if (!Utils::FileSystem::exists(path))
 		{
-			LOG(LogError) << "Failed to create default configuration file at: " << path;
-			LOG(LogError) << "Please check directory permissions for: " << configDir;
-			return false;
+			LOG(LogWarning) << "Could not create default configuration file at: " << path;
+			LOG(LogWarning) << "OpenConsole will continue without systems configured.";
+			LOG(LogInfo) << "This is acceptable for OpenConsole - you can add games later.";
+			// Return early - we'll run with no systems configured
+			LOG(LogInfo) << "No game systems loaded. OpenConsole is ready for game setup.";
+			return true;
 		}
+		else
+		{
+			LOG(LogInfo) << "Successfully created default configuration at: " << path;
+		}
+	}
 
-		LOG(LogInfo) << "Successfully created default configuration at: " << path;
+	// If config file doesn't exist at this point, continue with empty systems
+	if (!Utils::FileSystem::exists(path))
+	{
+		LOG(LogInfo) << "No configuration file found. OpenConsole will run with no systems.";
+		LOG(LogInfo) << "OpenConsole is ready! You can add games to ~/Games/ or set up itch.io integration.";
+		return true;
 	}
 
 	pugi::xml_document doc;
@@ -301,9 +319,9 @@ bool SystemData::loadConfig(Window* window)
 
 	if(!res)
 	{
-		LOG(LogError) << "Could not parse es_systems.cfg file!";
-		LOG(LogError) << res.description();
-		return false;
+		LOG(LogWarning) << "Could not parse es_systems.cfg file: " << res.description();
+		LOG(LogWarning) << "OpenConsole will continue with no systems configured.";
+		return true;
 	}
 
 	//actually read the file
@@ -311,8 +329,9 @@ bool SystemData::loadConfig(Window* window)
 
 	if(!systemList)
 	{
-		LOG(LogError) << "es_systems.cfg is missing the <systemList> tag!";
-		return false;
+		LOG(LogWarning) << "es_systems.cfg is missing the <systemList> tag!";
+		LOG(LogWarning) << "OpenConsole will continue with no systems configured.";
+		return true;
 	}
 
 	std::vector<std::string> systemsNames;
@@ -378,7 +397,8 @@ bool SystemData::loadConfig(Window* window)
 			pThreadPool->wait([window, &processedSystem, systemCount, &systemsNames]
 			{
 				int px = processedSystem - 1;
-				if (px >= 0 && px < systemsNames.size())
+				// Check if systemsNames is not empty and px is within bounds
+				if (!systemsNames.empty() && px >= 0 && px < systemsNames.size())
 					window->renderLoadingScreen(systemsNames.at(px), (float)px / (float)(systemCount + 1));
 			}, 10);
 		}
@@ -408,6 +428,20 @@ bool SystemData::loadConfig(Window* window)
 		CollectionSystemManager::get()->loadCollectionSystems();
 	}
 
+	// Log final status
+	if (sSystemVector.empty())
+	{
+		LOG(LogInfo) << "No game systems loaded. This is normal for OpenConsole on first run.";
+		LOG(LogInfo) << "OpenConsole is ready! You can:";
+		LOG(LogInfo) << "  - Add games to ~/Games/ directory";
+		LOG(LogInfo) << "  - Set up itch.io integration in Settings";
+		LOG(LogInfo) << "  - Load games from USB storage";
+	}
+	else
+	{
+		LOG(LogInfo) << "Loaded " << sSystemVector.size() << " game system(s)";
+	}
+
 	return true;
 }
 
@@ -420,7 +454,21 @@ void SystemData::writeExampleConfig(const std::string& path)
 	if (!Utils::FileSystem::exists(parentDir))
 	{
 		LOG(LogInfo) << "Creating parent directory: " << parentDir;
-		Utils::FileSystem::createDirectory(parentDir);
+		if (!Utils::FileSystem::createDirectory(parentDir))
+		{
+			LOG(LogError) << "Failed to create parent directory: " << parentDir;
+			LOG(LogError) << "Please ensure you have write permissions to create directories.";
+			return;
+		}
+
+		// Verify directory was created
+		if (!Utils::FileSystem::exists(parentDir))
+		{
+			LOG(LogError) << "Directory creation appeared to succeed but directory doesn't exist: " << parentDir;
+			LOG(LogError) << "This may indicate a filesystem or permissions issue.";
+			return;
+		}
+		LOG(LogInfo) << "Successfully created directory: " << parentDir;
 	}
 
 	std::ofstream file(path.c_str(), std::ios::out | std::ios::trunc);
@@ -428,6 +476,7 @@ void SystemData::writeExampleConfig(const std::string& path)
 	if (!file.is_open())
 	{
 		LOG(LogError) << "Failed to open file for writing: " << path;
+		LOG(LogError) << "Please check file permissions and ensure the directory is writable.";
 		return;
 	}
 
@@ -515,13 +564,21 @@ void SystemData::writeExampleConfig(const std::string& path)
 			"\n"
 			"</systemList>\n";
 
-	file.flush();  // Ensure data is written to disk
-	file.close();
+	// Flush and verify write was successful BEFORE closing
+	file.flush();
 
-	// Verify the file was written successfully
 	if (file.fail())
 	{
-		LOG(LogError) << "Error writing to config file: " << path;
+		LOG(LogError) << "Error flushing data to config file: " << path;
+		file.close();
+		return;
+	}
+
+	file.close();
+
+	if (file.fail())
+	{
+		LOG(LogError) << "Error closing config file: " << path;
 		return;
 	}
 
@@ -536,6 +593,7 @@ void SystemData::writeExampleConfig(const std::string& path)
 	else
 	{
 		LOG(LogError) << "Config file write appeared to succeed but file doesn't exist: " << path;
+		LOG(LogError) << "Please check directory permissions for: " << parentDir;
 	}
 }
 
@@ -566,7 +624,15 @@ bool SystemData::isVisible()
 
 SystemData* SystemData::getNext() const
 {
+	// Handle empty system vector
+	if (sSystemVector.empty())
+		return nullptr;
+
 	std::vector<SystemData*>::const_iterator it = getIterator();
+
+	// Handle case where current system is not in the vector
+	if (it == sSystemVector.cend())
+		return sSystemVector.front();
 
 	do {
 		it++;
@@ -580,7 +646,15 @@ SystemData* SystemData::getNext() const
 
 SystemData* SystemData::getPrev() const
 {
+	// Handle empty system vector
+	if (sSystemVector.empty())
+		return nullptr;
+
 	std::vector<SystemData*>::const_reverse_iterator it = getRevIterator();
+
+	// Handle case where current system is not in the vector
+	if (it == sSystemVector.crend())
+		return sSystemVector.back();
 
 	do {
 		it++;
