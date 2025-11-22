@@ -46,6 +46,18 @@ ViewController::~ViewController()
 
 void ViewController::goToStart()
 {
+	// Check if we have any systems loaded
+	if (SystemData::sSystemVector.empty())
+	{
+		LOG(LogInfo) << "No systems found. OpenConsole is ready for game setup.";
+		LOG(LogInfo) << "You can:";
+		LOG(LogInfo) << "  - Set up itch.io credentials in Settings → Plugins";
+		LOG(LogInfo) << "  - Load games from USB";
+		LOG(LogInfo) << "  - Add games to ~/Games/ directory";
+		mState.viewing = NOTHING;
+		return;
+	}
+
 	// If specific system is requested, go directly to the game list
 	auto requestedSystem = Settings::getInstance()->getString("StartupSystem");
 	if("" != requestedSystem && "retropie" != requestedSystem)
@@ -594,12 +606,18 @@ void ViewController::reloadAll(bool themeChanged)
 		mCurrentView = getGameListView(mState.getSystem());
 	}else if(mState.viewing == SYSTEM_SELECT)
 	{
-		SystemData* system = mState.getSystem();
-		goToSystemView(SystemData::sSystemVector.front());
-		mSystemListView->goToSystem(system, false);
-		mCurrentView = mSystemListView;
+		if (!SystemData::sSystemVector.empty())
+		{
+			SystemData* system = mState.getSystem();
+			goToSystemView(SystemData::sSystemVector.front());
+			mSystemListView->goToSystem(system, false);
+			mCurrentView = mSystemListView;
+		}
 	}else{
-		goToSystemView(SystemData::sSystemVector.front());
+		if (!SystemData::sSystemVector.empty())
+		{
+			goToSystemView(SystemData::sSystemVector.front());
+		}
 	}
 
 	updateHelpPrompts();
