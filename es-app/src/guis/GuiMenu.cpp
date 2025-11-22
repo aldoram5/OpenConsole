@@ -662,7 +662,12 @@ bool GuiMenu::input(InputConfig* config, Input input)
 HelpStyle GuiMenu::getHelpStyle()
 {
 	HelpStyle style = HelpStyle();
-	style.applyTheme(ViewController::get()->getState().getSystem()->getTheme(), "system");
+	// Only apply theme if we have a valid system
+	auto state = ViewController::get()->getState();
+	if (state.viewing == ViewController::GAME_LIST || state.viewing == ViewController::SYSTEM_SELECT)
+	{
+		style.applyTheme(state.getSystem()->getTheme(), "system");
+	}
 	return style;
 }
 

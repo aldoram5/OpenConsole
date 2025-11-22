@@ -5,6 +5,7 @@
 #include "animations/LaunchAnimation.h"
 #include "animations/MoveCameraAnimation.h"
 #include "guis/GuiMenu.h"
+#include "guis/GuiMsgBox.h"
 #include "views/gamelist/DetailedGameListView.h"
 #include "views/gamelist/IGameListView.h"
 #include "views/gamelist/GridGameListView.h"
@@ -55,6 +56,20 @@ void ViewController::goToStart()
 		LOG(LogInfo) << "  - Load games from USB";
 		LOG(LogInfo) << "  - Add games to ~/Games/ directory";
 		mState.viewing = NOTHING;
+
+		// Show a welcome message to guide the user
+		mWindow->pushGui(new GuiMsgBox(mWindow,
+			"WELCOME TO OPENCONSOLE!\n\n"
+			"No games found yet. This is normal on first startup.\n\n"
+			"To get started:\n"
+			"• Press START to open the menu\n"
+			"• Go to OpenConsole Settings\n"
+			"• Configure itch.io to connect your account\n"
+			"• Scan for games\n\n"
+			"You can also add games manually to:\n"
+			"~/Games/<system>/ directories\n\n"
+			"Press START or OK to continue.",
+			"OK", nullptr));
 		return;
 	}
 
