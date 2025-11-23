@@ -118,14 +118,16 @@ auto keyboard = std::make_shared<GuiVirtualKeyboard>(
 
 ## GuiOpenConsoleSettings
 
-Comprehensive settings menu for OpenConsole configuration.
+Comprehensive settings menu for OpenConsole configuration. This menu is always accessible from the main menu, regardless of UI mode (Full, Kid, Kiosk, etc.).
 
 ### Features
 
 - **Database Management**: View path, statistics, maintenance
+- **itch.io Integration**: Built-in itch.io authentication and configuration (always visible)
 - **Plugin Configuration**: Manage scan paths and depth
-- **Scan Control**: Manual and automatic scanning options
+- **Scan Control**: Fully functional game scanning with detailed statistics
 - **Progress Feedback**: Real-time updates during operations
+- **Universal Access**: Available in all UI modes
 
 ### Usage
 
@@ -135,6 +137,8 @@ Comprehensive settings menu for OpenConsole configuration.
 // Open OpenConsole settings
 mWindow->pushGui(new GuiOpenConsoleSettings(mWindow));
 ```
+
+**Note**: Recent improvements have fixed crashes that occurred when opening this menu from the start screen, and made it accessible in all UI modes.
 
 ### Menu Sections
 
@@ -181,15 +185,21 @@ Opens `GuiVirtualKeyboard` to enter new path
 
 #### 3. Scanning Section
 
-**Scan for Games Now** - Manual scan trigger
+**Scan for Games Now** - Fully functional manual scan trigger
 ```cpp
 void scanGames();
 ```
 Executes:
-1. Creates progress dialog
-2. Calls `GameScanner::scanAllSources()`
-3. Updates UI with results
-4. Refreshes game list
+1. Checks for authenticated game sources
+2. Calls `GameScanner::scanAllSources()` with progress callback
+3. Displays detailed statistics:
+   - Total games found
+   - New games added
+   - Games skipped (duplicates)
+   - Errors encountered
+   - Scan duration in seconds
+4. Automatically refreshes game list in UI
+5. Shows helpful error if no sources configured
 
 **Auto-scan on Startup** - Toggle automatic scanning
 ```cpp

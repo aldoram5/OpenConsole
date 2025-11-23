@@ -15,14 +15,16 @@ This guide covers the complete itch.io integration in OpenConsole, including aut
 
 ## Overview
 
-OpenConsole integrates with itch.io to provide seamless access to your indie game library. The integration supports:
+OpenConsole provides built-in itch.io integration for seamless access to your indie game library. The integration supports:
 
+- **Built-in Feature**: itch.io support is always available, no plugin installation needed
 - **API Key Authentication**: Secure access using itch.io API keys
 - **Library Browsing**: View all games you own on itch.io
 - **Direct Downloads**: Download games with progress tracking
 - **Encrypted Storage**: API keys stored securely with AES-256 encryption
 - **Auto-Detection**: Automatic game type recognition
 - **Controller-First**: All operations possible with just a controller
+- **Always Accessible**: Configure itch.io in any UI mode (Full, Kid, Kiosk)
 
 ### Architecture
 
@@ -30,8 +32,8 @@ The itch.io integration consists of four main components:
 
 1. **TokenStorage**: Secure credential storage (`es-app/src/utils/`)
 2. **ItchIoApiClient**: HTTP client for itch.io API (`es-app/src/api/`)
-3. **ItchIoPlugin**: Plugin implementation (`es-app/src/plugins/`)
-4. **GuiItchIoAuth**: Authentication UI (`es-app/src/guis/`)
+3. **ItchIoPlugin**: Built-in game source plugin (`es-app/src/plugins/`)
+4. **GuiOpenConsoleSettings**: Configuration UI with itch.io section (`es-app/src/guis/`)
 
 ## Getting Your API Key
 
@@ -75,11 +77,12 @@ The API key grants access to:
 
 1. **Open OpenConsole Settings**
    - From the main menu, select **"OPENCONSOLE SETTINGS"**
-   - Navigate to the **Plugins** section
+   - This menu is now accessible in all UI modes (Full, Kid, Kiosk, etc.)
+   - Navigate to the **itch.io** section
 
 2. **Check itch.io Status**
    - You'll see: **"itch.io Status: Not authenticated"** (in red)
-   - Below that: **"itch.io Authentication"** → **"CONFIGURE"**
+   - Below that: **"Configure itch.io"** → **"CONFIGURE"**
 
 3. **Open Authentication Dialog**
    - Select **"itch.io Authentication"** → **"CONFIGURE"**
@@ -144,17 +147,20 @@ Once authenticated, your itch.io games appear automatically when scanning.
    - Select **"Scan for Games Now"** → **"START SCAN"**
    - OpenConsole scans both:
      - Local directories (LocalFilesystemPlugin)
-     - itch.io library (ItchIoPlugin)
+     - itch.io library (ItchIoPlugin, if authenticated)
 
 3. **Scan Progress**
-   - Shows scanning message
-   - Processes games from all sources
-   - Displays results when complete
+   - Shows scanning message with progress updates
+   - Processes games from all authenticated sources
+   - Displays detailed statistics when complete
 
 4. **View Results**
-   - Games added to database
-   - Available in game list
-   - Shows game count and stats
+   - **Total games found**: All games discovered from all sources
+   - **New games added**: Games newly added to the database
+   - **Games skipped**: Duplicate or previously scanned games
+   - **Errors**: Any issues encountered during scanning
+   - **Scan duration**: Time taken to complete the scan
+   - Game list automatically reloads to show new games
 
 ### What Gets Scanned
 
