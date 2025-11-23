@@ -195,7 +195,7 @@ Key UI Components:
 ```
 IGameSourcePlugin (interface)
 ├── LocalFilesystemPlugin (local game scanning)
-├── ItchIoPlugin (itch.io integration)
+├── ItchIoPlugin (itch.io integration - built-in)
 └── [Future plugins: Steam, GOG, Epic Games...]
 
 PluginManager (singleton)
@@ -205,9 +205,11 @@ PluginManager (singleton)
 **Design**: Strategy pattern with interface-based plugins
 **Purpose**: Extensible game source discovery
 
-Registered Plugins:
-- **LocalFilesystemPlugin**: Scans local directories for games
-- **ItchIoPlugin**: Fetches and downloads games from itch.io library
+Built-in Plugins:
+- **LocalFilesystemPlugin**: Scans local directories for games (always active)
+- **ItchIoPlugin**: Fetches and downloads games from itch.io library (always available, requires authentication)
+
+**Note**: As of recent updates, itch.io integration is built-in and always accessible in the OpenConsole Settings menu, regardless of UI mode.
 
 See [Plugin System Documentation](architecture/PLUGINS.md) and [itch.io Integration Guide](guides/ITCHIO_INTEGRATION.md)
 

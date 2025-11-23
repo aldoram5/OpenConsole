@@ -58,6 +58,7 @@ void ViewController::goToStart()
 		mState.viewing = NOTHING;
 
 		// Show a welcome message to guide the user
+		// After dismissing, automatically open the menu so user can access settings
 		mWindow->pushGui(new GuiMsgBox(mWindow,
 			"WELCOME TO OPENCONSOLE!\n\n"
 			"No games found yet. This is normal on first startup.\n\n"
@@ -69,7 +70,10 @@ void ViewController::goToStart()
 			"You can also add games manually to:\n"
 			"~/Games/<system>/ directories\n\n"
 			"Press START or OK to continue.",
-			"OK", nullptr));
+			"OK", [this] {
+				// Automatically open the menu after dismissing the welcome message
+				mWindow->pushGui(new GuiMenu(mWindow));
+			}));
 		return;
 	}
 

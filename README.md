@@ -13,7 +13,9 @@ OpenConsole is an open-source gaming console operating system designed for moder
 - **Secure Credential Storage**: AES-256 encrypted storage for API tokens
 - **Controller-First UI**: Designed for living room gaming without keyboard/mouse
 - **Virtual Keyboard**: On-screen keyboard with full controller navigation
-- **itch.io Integration**: Browse and download games from your itch.io library
+- **Built-in itch.io Integration**: Browse and download games from your itch.io library (always accessible)
+- **Universal Settings Access**: OpenConsole Settings available in all UI modes
+- **Robust Game Scanning**: Fully functional scanner with detailed statistics
 - **Auto-Boot Support**: Boot directly into OpenConsole on Raspberry Pi
 - **Theme Support**: Compatible with existing EmulationStation themes
 

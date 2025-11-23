@@ -28,8 +28,10 @@ GuiMenu::GuiMenu(Window* window) : GuiComponent(window), mMenu(window, "MAIN MEN
 {
 	bool isFullUI = UIModeController::getInstance()->isUIModeFull();
 
+	// Always show OPENCONSOLE SETTINGS (contains plugins, database, scanning settings)
+	addEntry("OPENCONSOLE SETTINGS", 0x00FF00FF, true, [this] { openOpenConsoleSettings(); });
+
 	if (isFullUI) {
-		addEntry("OPENCONSOLE SETTINGS", 0x00FF00FF, true, [this] { openOpenConsoleSettings(); });
 		addEntry("SCRAPER", 0x777777FF, true, [this] { openScraperSettings(); });
 		addEntry("SOUND SETTINGS", 0x777777FF, true, [this] { openSoundSettings(); });
 		addEntry("UI SETTINGS", 0x777777FF, true, [this] { openUISettings(); });
