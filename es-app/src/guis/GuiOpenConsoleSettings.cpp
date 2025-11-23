@@ -10,8 +10,10 @@
 #include "plugins/ItchIoPlugin.h"
 #include "components/SwitchComponent.h"
 #include "components/ButtonComponent.h"
+#include "GameScanner.h"
 #include "Window.h"
 #include "Log.h"
+#include <sstream>
 
 using namespace OpenConsole;
 
@@ -93,24 +95,28 @@ void GuiOpenConsoleSettings::addPluginSettings()
 		addRow(addPathRow);
 	}
 
-	// itch.io plugin settings
+	// itch.io built-in integration (always available)
 	auto itchPlugin = std::dynamic_pointer_cast<ItchIoPlugin>(pm.getPlugin("itch_io"));
-	if (itchPlugin)
+
+	// Authentication status
+	std::string authStatus = "Not authenticated";
+	unsigned int statusColor = 0xFF0000FF;
+
+	if (itchPlugin && itchPlugin->isAuthenticated())
 	{
-		// Authentication status
-		std::string authStatus = itchPlugin->isAuthenticated() ? "Authenticated" : "Not authenticated";
-		unsigned int statusColor = itchPlugin->isAuthenticated() ? 0x00FF00FF : 0xFF0000FF;
-
-		addWithLabel("itch.io Status",
-			std::make_shared<TextComponent>(mWindow, authStatus, Font::get(FONT_SIZE_SMALL), statusColor));
-
-		// Authenticate button - clickable row
-		ComponentListRow authRow;
-		authRow.addElement(std::make_shared<TextComponent>(mWindow, "CONFIGURE ITCH.IO",
-			Font::get(FONT_SIZE_MEDIUM), 0x777777FF), true);
-		authRow.makeAcceptInputHandler([this] { openItchIoAuth(); });
-		addRow(authRow);
+		authStatus = "Authenticated";
+		statusColor = 0x00FF00FF;
 	}
+
+	addWithLabel("itch.io Status",
+		std::make_shared<TextComponent>(mWindow, authStatus, Font::get(FONT_SIZE_SMALL), statusColor));
+
+	// Authenticate button - clickable row (always visible)
+	ComponentListRow authRow;
+	authRow.addElement(std::make_shared<TextComponent>(mWindow, "CONFIGURE ITCH.IO",
+		Font::get(FONT_SIZE_MEDIUM), 0x777777FF), true);
+	authRow.makeAcceptInputHandler([this] { openItchIoAuth(); });
+	addRow(authRow);
 }
 
 void GuiOpenConsoleSettings::addScanningSettings()
@@ -148,10 +154,53 @@ void GuiOpenConsoleSettings::addMaintenanceSettings()
 
 void GuiOpenConsoleSettings::scanGames()
 {
-	mWindow->pushGui(new GuiMsgBox(mWindow, "Game scanning is not yet fully implemented.\n\nThis will be available in a future update.",
-		"OK", nullptr));
+	LOG(LogInfo) << "Game scan requested";
 
-	LOG(LogInfo) << "Game scan requested (not yet implemented)";
+	// Create scanner instance
+	GameScanner scanner;
+
+	// Check if we have any authenticated plugins
+	auto& pm = PluginManager::getInstance();
+	auto authenticatedPlugins = pm.getAuthenticatedPlugins();
+
+	if (authenticatedPlugins.empty())
+	{
+		mWindow->pushGui(new GuiMsgBox(mWindow,
+			"No game sources configured!\n\n"
+			"Please configure at least one game source:\n"
+			"• Add local scan paths for filesystem games\n"
+			"• Authenticate with itch.io for your library",
+			"OK", nullptr));
+		return;
+	}
+
+	// Perform the scan
+	LOG(LogInfo) << "Starting game scan from " << authenticatedPlugins.size() << " source(s)...";
+
+	ScanStats stats = scanner.scanAllSources(nullptr);
+
+	// Build result message
+	std::stringstream ss;
+	ss << "GAME SCAN COMPLETE\n\n";
+	ss << "Found: " << stats.totalGamesFound << " games\n";
+	ss << "Added: " << stats.newGamesAdded << " new games\n";
+	ss << "Skipped: " << stats.duplicatesSkipped << " duplicates\n";
+
+	if (stats.errorsEncountered > 0)
+	{
+		ss << "Errors: " << stats.errorsEncountered << "\n";
+	}
+
+	ss << "\nScan time: " << stats.scanDurationSeconds << " seconds";
+
+	// Show results to user
+	mWindow->pushGui(new GuiMsgBox(mWindow, ss.str(), "OK", [this] {
+		// After scan completes, reload the game list in the UI
+		// This will trigger ViewController to refresh
+		ViewController::get()->reloadAll();
+	}));
+
+	LOG(LogInfo) << "Game scan complete: " << stats.newGamesAdded << " new games added";
 }
 
 void GuiOpenConsoleSettings::refreshDatabase()
